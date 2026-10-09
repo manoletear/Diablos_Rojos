@@ -60,51 +60,65 @@ export default async function Home() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-4xl px-6 pb-16 pt-16 text-center sm:px-10">
-        <div className="mx-auto mb-5 w-fit rounded-full bg-primary-500/15 px-4 py-1.5 text-xs font-semibold text-primary-400">
-          Academia oficial de Ñublense
-        </div>
-        <h1 className="text-3xl font-bold leading-tight sm:text-5xl">
-          Academia de Fútbol
-          <br />
-          <span className="text-primary-500">Diablos Rojos</span>
-        </h1>
-        <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-300">
-          No prometemos futbolistas profesionales, pero sí mejores ciudadanos.
-        </p>
-        <div className="mt-8 flex justify-center gap-3">
-          <Link
-            href="/login"
-            className="rounded-md bg-primary-500 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-600"
-          >
-            Iniciar sesión
-          </Link>
+      <section className="relative overflow-hidden px-6 pb-20 pt-20 text-center sm:px-10">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-30"
+          style={{ backgroundImage: "url(/images/hero-diablos.jpg)" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-dr-neutral-900/60 via-dr-neutral-900/80 to-dr-neutral-900" />
+        <div className="relative mx-auto max-w-4xl">
+          <div className="mx-auto mb-5 w-fit rounded-full bg-primary-500/15 px-4 py-1.5 text-xs font-semibold text-primary-400">
+            Academia oficial de Ñublense
+          </div>
+          <h1 className="text-3xl font-bold leading-tight sm:text-5xl">
+            Academia de Fútbol
+            <br />
+            <span className="text-primary-500">Diablos Rojos</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-300">
+            No prometemos futbolistas profesionales, pero sí mejores ciudadanos.
+          </p>
+          <div className="mt-8 flex justify-center gap-3">
+            <Link
+              href="/login"
+              className="rounded-md bg-primary-500 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-600"
+            >
+              Iniciar sesión
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Quienes somos */}
       <section className="bg-white px-6 py-16 text-dr-neutral-900 sm:px-10">
-        <div className="mx-auto max-w-3xl">
-          <div className="text-xs font-semibold uppercase tracking-wide text-primary-600">Quiénes Somos</div>
-          <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
-            Más que una academia de fútbol, una comunidad formadora
-          </h2>
-          <div className="mt-6 space-y-5 text-neutral-600">
-            <p>
-              Diablos Rojos es la academia de fútbol formativo oficial de Ñublense, uno de
-              los clubes más importantes de Chile. Nuestro enfoque va más allá de la técnica
-              y la táctica: creemos firmemente que la persona viene antes que el jugador.
-            </p>
-            <p>
-              La academia forma parte del prestigioso proyecto <strong>Método X</strong>,
-              dirigido por Franco Illino y Gian Carlo Zolezzi, dos referentes del fútbol
-              formativo en Chile. Trabajamos alineados con los lineamientos de la ANFP para
-              fútbol formativo y alto rendimiento.
-            </p>
-            <p className="font-medium text-dr-neutral-900">
-              La cancha es una excusa para enseñar valores que duran toda la vida.
-            </p>
+        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-2 lg:items-center">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-primary-600">Quiénes Somos</div>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+              Más que una academia de fútbol, una comunidad formadora
+            </h2>
+            <div className="mt-6 space-y-5 text-neutral-600">
+              <p>
+                Diablos Rojos es la academia de fútbol formativo oficial de Ñublense, uno de
+                los clubes más importantes de Chile. Nuestro enfoque va más allá de la técnica
+                y la táctica: creemos firmemente que la persona viene antes que el jugador.
+              </p>
+              <p>
+                La academia forma parte del prestigioso proyecto <strong>Método X</strong>,
+                dirigido por Franco Illino y Gian Carlo Zolezzi, dos referentes del fútbol
+                formativo en Chile. Trabajamos alineados con los lineamientos de la ANFP para
+                fútbol formativo y alto rendimiento.
+              </p>
+              <p className="font-medium text-dr-neutral-900">
+                La cancha es una excusa para enseñar valores que duran toda la vida.
+              </p>
+            </div>
           </div>
+          <img
+            src="/images/about-diablos.jpg"
+            alt="Jugadores de Academia Diablos Rojos entrenando"
+            className="rounded-xl object-cover shadow-lg"
+          />
         </div>
       </section>
 
