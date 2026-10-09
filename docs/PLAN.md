@@ -1,5 +1,30 @@
 # Plan de desarrollo — Plataforma Diablos Rojos (multiusuario)
 
+## PENDIENTE — Comunicación Fase 5 (decisiones diferidas 2026-10-09)
+
+Schema completo ya construido y aplicado (migraciones 0032-0035): plantillas
+con catálogo de variables validado, `mensajes`/`mensaje_envios` separados,
+disparadores automáticos (pago vencido, convocatoria, entrenamiento
+suspendido/cambiado) ya ENCOLANDO de verdad en `en_cola`, función de
+confirmación de convocatoria por token. **Falta resolver antes de que esto
+sirva para algo real:**
+
+1. **Cuenta WhatsApp Business API** (Meta Cloud API o BSP tipo Twilio/
+   360dialog) — sin esto los mensajes quedan en `en_cola` para siempre,
+   igual que el defecto que le vimos a Telar. Falta que el club la gestione.
+2. **Ruta pública `/confirmar/:token`** (sin login) para que el apoderado
+   responda a una convocatoria — la función SQL `confirmar_convocatoria_por_token()`
+   ya existe, falta la página Next.js que la llame. No tiene sentido
+   construirla hasta tener el canal real (el link no le llegaría a nadie).
+3. **Límite anti-spam**: hardcodeado en 3 mensajes/apoderado/día
+   (`puede_enviar_mensaje()`, migración 0034) — número puesto por default,
+   ajustar con el club cuando se defina.
+4. **Notificaciones in-app + preferencias por canal**: no se construyó
+   (bajo impacto mientras solo haya un usuario activo real).
+
+Retomar esto cuando el club tenga resuelto el punto 1.
+
+
 Basado en: `Backups/scope-funcional-inspiracion.md` (inventario funcional,
 inspirado en Telar, sin código ni datos de terceros).
 
