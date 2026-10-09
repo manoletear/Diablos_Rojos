@@ -3,9 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 export default async function MinutajePage() {
   const supabase = await createClient();
 
+  const TEMPORADA_ACTUAL = "Temporada 2026";
+
   const { data: categoriasResumen } = await supabase
     .from("minutaje_categoria_resumen")
     .select("categoria_id, temporada, alumnos, jornadas, partidos, minutos_totales, citados_promedio_jornada, categorias(nombre)")
+    .eq("temporada", TEMPORADA_ACTUAL)
     .order("categorias(nombre)");
 
   const { data: alumnosResumen } = await supabase
@@ -13,6 +16,7 @@ export default async function MinutajePage() {
     .select(
       "categoria_id, estado, asistencia_pct, entrenamientos_presente, entrenamientos_registrados, convocatoria_pct, convocado_jornadas, jornadas_categoria, partidos_con_minutos, partidos_categoria, partidos_sin_entrar, minutaje_efectivo_pct, minutos_cat_propia, minutos_otras_cat, minutos_totales, minutos_ult5_jornadas, jornadas_ult5, alumnos(nombre, apellido)"
     )
+    .eq("temporada", TEMPORADA_ACTUAL)
     .order("minutos_totales", { ascending: false });
 
   const porCategoria = new Map<string, typeof alumnosResumen>();

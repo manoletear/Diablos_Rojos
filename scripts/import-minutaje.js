@@ -92,7 +92,7 @@ async function main() {
         alumnoId, categoriaId, row["temporada"], row["estado"], row["fecha_incorporacion"] || null,
         num(row["entrenamientos_presente"]), num(row["entrenamientos_registrados"]), num(row["asistencia_pct"]),
         num(row["jornadas_categoria"]), num(row["partidos_categoria"]), num(row["convocado_jornadas"]), num(row["convocado_partidos"]),
-        num(row["convocatorias_rechazadas"]), num(row["convocatoria_pct"]), num(row["partidos_con_minutos"]), num(row["partidos_sin_entrar"]),
+        num(row["convocatorias_rechazadas"]), num(row["convocatoria_pct"]) !== null ? num(row["convocatoria_pct"]) * 100 : null, num(row["partidos_con_minutos"]), num(row["partidos_sin_entrar"]),
         num(row["minutaje_efectivo_pct"]), bool(row["datos_insuficientes"]), num(row["minutos_cat_propia"]), num(row["minutos_otras_cat"]),
         num(row["minutos_totales"]), num(row["minutos_ult5_jornadas"]), num(row["jornadas_ult5"]),
         bool(row["cumple_asistencia_60"]), bool(row["cumple_convocatoria_70"]), bool(row["cumple_minutos_50"]),
