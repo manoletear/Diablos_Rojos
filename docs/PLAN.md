@@ -113,7 +113,60 @@ Calendario, Minutaje, Estadísticas.
 **Fase 5 — Dashboard Ejecutivo + Comunicación**
 KPIs consolidados, envío de mensajes a apoderados (WhatsApp/email).
 
-## 6. Siguiente paso inmediato
+## 6. Fase 6 — Portal Apoderados (planificación, no implementado aún)
+
+Definido en conversación 2026-10-09, pendiente de construir.
+
+### Objetivo
+App separada para apoderados/papás: ver ficha de su(s) hijo(s), pagar
+cuotas y comprar uniforme vía MercadoPago, ver resultados de partidos.
+
+### Lo que ya soporta el modelo actual
+- `apoderado_alumno` es N:N real → ya soporta varios apoderados por
+  alumno (padres separados, ambos con cuenta propia) y varios hijos
+  por apoderado.
+- `apoderados.profile_id` (FK nullable a `profiles`) ya existe, pensado
+  para esto — hoy vacío para los 170 apoderados importados del CSV
+  (no tienen cuenta de auth todavía).
+- RLS de lectura para rol `apoderado` ya aplicada (alumnos, fichas
+  médicas, pagos, asistencia — fase 1 y 2).
+
+### Falta construir
+1. **Activación de cuenta por email (Key = email)**: el email YA es el
+   campo clave — `apoderados.email` / `entrenadores.email`. Al hacer
+   signup, si el email coincide con una fila existente en `apoderados`
+   o `entrenadores`, se autolinkea `profile_id` a esa fila y el rol se
+   asigna solo (apoderado o entrenador según dónde matcheó). No se crea
+   fila nueva, se reclama la existente. Caso simple y ya cubre la
+   mayoría (CSV trae email real de cada apoderado principal).
+2. **Excepción — 2do apoderado sin fila previa** (padres separados,
+   el 2do no estaba en el CSV, su email no matchea nada): no hay con
+   qué auto-linkear. Necesita código de invitación por alumno/familia
+   generado por admin — nunca por RUT solo (no es secreto en Chile).
+3. **Rutas `/portal/*`** separadas de `/dashboard/*`, layout propio,
+   selector de hijo activo si el apoderado tiene más de uno.
+4. **Pagos reales — MercadoPago** (Checkout Pro): integrar access
+   token + public key del club, flujo de pago, webhook que actualiza
+   `pagos.estado` a `pagado` automáticamente al confirmar.
+5. **Compra de uniforme**: nuevo tipo de pedido, NO es fila de `pagos`
+   de cuota — necesita tabla propia (prenda: polera/pantalón/medias,
+   talla por prenda, monto), mismo flujo de cobro MercadoPago.
+6. **Resultados de partido (solo lectura)**: marcador + `EventoPartido`
+   (goles, amarillas, rojas) del/los hijo(s) del apoderado logueado.
+
+### Pendiente — invitación masiva a los 170 apoderados existentes
+**STAND BY.** Se construye el mecanismo de activación primero; el
+disparo real de invitaciones (email/WhatsApp) lo decide Manuel cuándo
+hacerlo, no automático.
+
+### Preguntas que quedaron resueltas
+- Pasarela de pago: **MercadoPago**.
+- "Configurar equipo de fútbol" = comprar uniforme (polera, pantalón,
+  medias) con talla por prenda — no es un juego tipo fantasy.
+- Resultados de partido: solo informativo (marcador, goles, expulsados,
+  amarillas) — sin interacción.
+
+## 7. Siguiente paso inmediato
 
 1. Confirmar provisión Supabase (costo) → crear proyecto.
 2. Aplicar migración Fase 1 (`sedes`, `temporadas`, `categorias`, `profiles`,
