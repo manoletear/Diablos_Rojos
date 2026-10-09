@@ -1,11 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
 
+function money(n: number | null) {
+  if (n === null) return null;
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
+
 export default async function CategoriasPage() {
   const supabase = await createClient();
 
   const { data: categorias, error } = await supabase
     .from("categorias")
-    .select("id, nombre, anio_desde, anio_hasta, dias_horario, estado, sedes(nombre), alumnos(count)")
+    .select(
+      "id, nombre, anio_desde, anio_hasta, dias_horario, estado, mensualidad_base, sedes(nombre), entrenadores!entrenador_principal_id(nombre), alumnos(count)"
+    )
     .order("anio_desde", { ascending: false });
 
   return (
@@ -13,9 +24,7 @@ export default async function CategoriasPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">Categorías</h1>
-          <p className="text-sm text-neutral-500">
-            Gestión de categorías deportivas
-          </p>
+          <p className="text-sm text-neutral-500">Gestión de categorías deportivas</p>
         </div>
         <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
           + Nueva Categoría
@@ -23,52 +32,72 @@ export default async function CategoriasPage() {
       </div>
 
       {error && (
-        <div className="mt-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary-600">
-          {error.message}
-        </div>
+        <div className="mt-4 rounded-md bg-error-bg px-3 py-2 text-sm text-error">{error.message}</div>
       )}
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {categorias?.map((cat) => {
-          const sede = (cat.sedes as unknown as { nombre: string } | null)?.nombre;
-          const alumnosCount =
-            (cat.alumnos as unknown as { count: number }[] | null)?.[0]
-              ?.count ?? 0;
-          const rango =
-            cat.anio_desde === cat.anio_hasta
-              ? cat.anio_desde
-              : `${cat.anio_desde}-${cat.anio_hasta}`;
+      <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-5">
+        <div className="font-semibold text-neutral-900">Listado de Categorías</div>
 
-          return (
-            <div
-              key={cat.id}
-              className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm"
-            >
-              <div className="flex items-start justify-between">
-                <h2 className="font-semibold text-neutral-900">{cat.nombre}</h2>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    cat.estado === "activa"
-                      ? "bg-green-50 text-green-700"
-                      : "bg-neutral-100 text-neutral-500"
-                  }`}
-                >
-                  {cat.estado}
-                </span>
-              </div>
-              <div className="mt-1 text-xs text-neutral-400">{rango}</div>
-              <div className="mt-3 text-sm text-neutral-600">
-                {alumnosCount} alumnos
-              </div>
-              <div className="mt-1 text-sm text-neutral-600">{sede}</div>
-              {cat.dias_horario && (
-                <div className="mt-1 text-xs text-neutral-400">
-                  {cat.dias_horario}
-                </div>
-              )}
-            </div>
-          );
-        })}
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[900px] text-sm">
+            <thead className="border-b border-neutral-200 bg-neutral-50 text-left text-xs uppercase text-neutral-500">
+              <tr>
+                <th className="px-3 py-3">Nombre</th>
+                <th className="px-3 py-3">Años de nacimiento</th>
+                <th className="px-3 py-3">Entrenador Principal</th>
+                <th className="px-3 py-3">Estudiantes</th>
+                <th className="px-3 py-3">Horario</th>
+                <th className="px-3 py-3">Mensualidad</th>
+                <th className="px-3 py-3">Sede</th>
+                <th className="px-3 py-3">Estado</th>
+                <th className="px-3 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-100">
+              {categorias?.map((cat) => {
+                const sede = (cat.sedes as unknown as { nombre: string } | null)?.nombre;
+                const entrenador = (cat.entrenadores as unknown as { nombre: string } | null)?.nombre;
+                const alumnosCount = (cat.alumnos as unknown as { count: number }[] | null)?.[0]?.count ?? 0;
+                const rango = cat.anio_desde === cat.anio_hasta ? `${cat.anio_desde}` : `${cat.anio_desde} - ${cat.anio_hasta}`;
+                const precio = money(cat.mensualidad_base);
+
+                return (
+                  <tr key={cat.id}>
+                    <td className="px-3 py-3 font-medium text-neutral-900">{cat.nombre}</td>
+                    <td className="px-3 py-3 text-neutral-600">{rango}</td>
+                    <td className="px-3 py-3">
+                      {entrenador ? (
+                        <span className="rounded border border-neutral-300 px-2 py-0.5 text-xs">{entrenador}</span>
+                      ) : (
+                        <span className="rounded border border-neutral-300 px-2 py-0.5 text-xs text-neutral-400">Sin asignar</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="rounded border border-neutral-300 px-2 py-0.5 text-xs">{alumnosCount} alumnos</span>
+                    </td>
+                    <td className="px-3 py-3 text-neutral-600">{cat.dias_horario ?? "—"}</td>
+                    <td className="px-3 py-3 text-neutral-600">
+                      {precio ?? <span className="text-neutral-400">Hereda</span>}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="rounded border border-info px-2 py-0.5 text-xs text-info">{sede ?? "—"}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs font-medium ${
+                          cat.estado === "activa" ? "bg-success-bg text-success" : "bg-neutral-100 text-neutral-500"
+                        }`}
+                      >
+                        {cat.estado === "activa" ? "Activa" : "Inactiva"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-neutral-400">⋮</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
