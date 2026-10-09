@@ -44,7 +44,13 @@ const NAV: (NavItem | NavGroup)[] = [
       { label: "Dashboard Ejecutivo", href: "/dashboard/ejecutivo", roles: ["director", "admin"] },
     ],
   },
-  { label: "Finanzas", href: "/dashboard/finanzas", roles: ["director", "admin", "apoderado"] },
+  {
+    label: "Finanzas",
+    items: [
+      { label: "Pagos", href: "/dashboard/finanzas", roles: ["director", "admin", "apoderado"] },
+      { label: "Uniformes", href: "/dashboard/finanzas/uniformes", roles: ["director", "admin", "apoderado"] },
+    ],
+  },
   { label: "Salud", href: "/dashboard/salud", roles: ["director", "admin"] },
   { label: "Comunicación", href: "/dashboard/comunicacion", roles: ["director", "admin"] },
 ];

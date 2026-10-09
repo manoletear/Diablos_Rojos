@@ -61,6 +61,19 @@ export default async function Home() {
             Iniciar sesión
           </Link>
         </div>
+
+        <div className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-4">
+          {[
+            { value: "200+", label: "Alumnos" },
+            { value: "9", label: "Categorías" },
+            { value: "370+", label: "Partidos registrados" },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl border border-neutral-200 bg-white px-4 py-5">
+              <div className="text-2xl font-bold text-dr-neutral-900">{s.value}</div>
+              <div className="mt-1 text-xs text-neutral-500">{s.label}</div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Módulos */}
