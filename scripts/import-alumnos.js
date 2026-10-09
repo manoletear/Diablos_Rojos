@@ -3,6 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const { Client } = require("pg");
 
+// carga DATABASE_URL desde .env.local
+require("dotenv").config({ path: path.join(__dirname, "..", ".env.local") });
+
+if (!process.env.DATABASE_URL) {
+  console.error("Falta DATABASE_URL en .env.local");
+  process.exit(1);
+}
+
 const CSV_PATH = path.join(
   __dirname,
   "..",
@@ -11,12 +19,35 @@ const CSV_PATH = path.join(
   "alumnos_activos_2026-10-09.csv"
 );
 
+function splitCsvLine(line) {
+  const cells = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === "," && !inQuotes) {
+      cells.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  cells.push(current);
+  return cells;
+}
+
 function parseCsv(text) {
   const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter(Boolean);
-  const headers = lines[0].split(",");
+  const headers = splitCsvLine(lines[0]);
   return lines.slice(1).map((line) => {
-    // naive split (no embedded commas in this dataset's quoted fields observed)
-    const cells = line.split(",");
+    const cells = splitCsvLine(line);
     const row = {};
     headers.forEach((h, i) => (row[h] = (cells[i] ?? "").trim()));
     return row;
@@ -41,8 +72,7 @@ async function main() {
   const rows = parseCsv(csv);
 
   const c = new Client({
-    connectionString:
-      "postgresql://postgres.bqnpijcrbiikyfdtfxef:Manoletear.%2C@aws-1-sa-east-1.pooler.supabase.com:5432/postgres",
+    connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
   });
   await c.connect();
