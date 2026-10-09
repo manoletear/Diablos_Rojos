@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/sidebar";
 import { BottomNav } from "@/components/bottom-nav";
+import { Topbar } from "@/components/topbar";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,13 @@ export default async function DashboardLayout({
           userRole={profile?.rol ?? "sin rol"}
         />
       </div>
-      <main className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
+      <div className="flex min-h-screen flex-1 flex-col overflow-y-auto pb-16 md:pb-0">
+        <Topbar
+          userEmail={profile?.email ?? user.email ?? ""}
+          userRole={profile?.rol ?? "sin rol"}
+        />
+        <main className="flex-1">{children}</main>
+      </div>
       <BottomNav />
     </div>
   );
