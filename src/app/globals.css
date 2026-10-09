@@ -1,26 +1,130 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #121212;
+
+  /* Primario — rojo DR (logo) */
+  --color-primary-50: #fdf2f3;
+  --color-primary-100: #fbe1e4;
+  --color-primary-200: #f5c0c7;
+  --color-primary-300: #ec949f;
+  --color-primary-400: #dd5a6b;
+  --color-primary-500: #b8233a;
+  --color-primary-600: #9a1c30;
+  --color-primary-700: #7d1627;
+  --color-primary-800: #5e1019;
+  --color-primary-900: #420b11;
+
+  /* Secundario — azul DR (logo) */
+  --color-secondary-50: #eef3fb;
+  --color-secondary-100: #d6e2f5;
+  --color-secondary-200: #afc7ea;
+  --color-secondary-300: #7fa5db;
+  --color-secondary-400: #4d7fc4;
+  --color-secondary-500: #2251a3;
+  --color-secondary-600: #1b4288;
+  --color-secondary-700: #15336a;
+  --color-secondary-800: #10254d;
+  --color-secondary-900: #0a1833;
+
+  /* Neutros — negro DR (logo) */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f1f1f0;
+  --color-neutral-200: #e2e1df;
+  --color-neutral-300: #c9c7c3;
+  --color-neutral-400: #a3a19b;
+  --color-neutral-500: #78766f;
+  --color-neutral-600: #55534d;
+  --color-neutral-700: #3a3834;
+  --color-neutral-800: #242321;
+  --color-neutral-900: #121212;
+
+  /* Semanticos */
+  --color-success: #2e7d4f;
+  --color-success-bg: #eaf4ee;
+  --color-warning: #b8780b;
+  --color-warning-bg: #fbf2e2;
+  --color-error: #b8233a;
+  --color-error-bg: #fdf2f3;
+  --color-info: #2251a3;
+  --color-info-bg: #eef3fb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-800: var(--color-primary-800);
+  --color-primary-900: var(--color-primary-900);
+
+  --color-secondary-50: var(--color-secondary-50);
+  --color-secondary-100: var(--color-secondary-100);
+  --color-secondary-200: var(--color-secondary-200);
+  --color-secondary-300: var(--color-secondary-300);
+  --color-secondary-400: var(--color-secondary-400);
+  --color-secondary-500: var(--color-secondary-500);
+  --color-secondary-600: var(--color-secondary-600);
+  --color-secondary-700: var(--color-secondary-700);
+  --color-secondary-800: var(--color-secondary-800);
+  --color-secondary-900: var(--color-secondary-900);
+
+  --color-dr-neutral-50: var(--color-neutral-50);
+  --color-dr-neutral-100: var(--color-neutral-100);
+  --color-dr-neutral-200: var(--color-neutral-200);
+  --color-dr-neutral-300: var(--color-neutral-300);
+  --color-dr-neutral-400: var(--color-neutral-400);
+  --color-dr-neutral-500: var(--color-neutral-500);
+  --color-dr-neutral-600: var(--color-neutral-600);
+  --color-dr-neutral-700: var(--color-neutral-700);
+  --color-dr-neutral-800: var(--color-neutral-800);
+  --color-dr-neutral-900: var(--color-neutral-900);
+
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-error: var(--color-error);
+  --color-error-bg: var(--color-error-bg);
+  --color-info: var(--color-info);
+  --color-info-bg: var(--color-info-bg);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #121212;
+    --foreground: #fafafa;
+
+    /* en oscuro el rojo/azul se aclaran un paso para mantener contraste 4.5:1 sobre #121212 */
+    --color-primary-500: #dd5a6b;
+    --color-primary-600: #ec949f;
+    --color-secondary-500: #4d7fc4;
+    --color-secondary-600: #7fa5db;
+
+    --color-success: #5aa97a;
+    --color-success-bg: #1a2b21;
+    --color-warning: #d9a13f;
+    --color-warning-bg: #2e2412;
+    --color-error: #dd5a6b;
+    --color-error-bg: #2c1317;
+    --color-info: #4d7fc4;
+    --color-info-bg: #16223a;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }

@@ -53,7 +53,7 @@ function NavLink({ item }: { item: NavItem }) {
       href={item.href}
       className={`block rounded-md px-3 py-2 text-sm ${
         active
-          ? "bg-red-50 font-medium text-red-700"
+          ? "bg-primary-50 font-medium text-primary-600"
           : "text-neutral-700 hover:bg-neutral-100"
       }`}
     >
@@ -93,7 +93,7 @@ export function Sidebar({
 }) {
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-neutral-200 bg-white">
-      <div className="flex items-center gap-2 bg-red-700 px-4 py-4 text-white">
+      <div className="flex items-center gap-2 bg-primary-500 px-4 py-4 text-white">
         <span className="text-lg font-bold">Diablos Rojos</span>
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">

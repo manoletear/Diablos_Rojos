@@ -17,13 +17,13 @@ export default async function AlumnosPage() {
             Gestión de estudiantes de la academia
           </p>
         </div>
-        <button className="rounded-md bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800">
+        <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
           + Nuevo Alumno
         </button>
       </div>
 
       {error && (
-        <div className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="mt-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary-600">
           {error.message}
         </div>
       )}
@@ -60,9 +60,9 @@ export default async function AlumnosPage() {
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                         a.estado === "matriculado"
-                          ? "bg-green-50 text-green-700"
+                          ? "bg-success-bg text-success"
                           : a.estado === "en_prueba"
-                            ? "bg-amber-50 text-amber-700"
+                            ? "bg-warning-bg text-warning"
                             : "bg-neutral-100 text-neutral-500"
                       }`}
                     >

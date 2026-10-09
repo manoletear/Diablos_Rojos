@@ -11,14 +11,14 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
       <div className="w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
-          <h1 className="text-xl font-bold text-red-700">Diablos Rojos</h1>
+          <h1 className="text-xl font-bold text-primary-600">Diablos Rojos</h1>
           <p className="mt-1 text-sm text-neutral-500">
             Ingresa a tu cuenta
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div className="mb-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary-600">
             {error}
           </div>
         )}
@@ -50,7 +50,7 @@ export default async function LoginPage({
           </div>
           <button
             type="submit"
-            className="w-full rounded-md bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800"
+            className="w-full rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600"
           >
             Ingresar
           </button>

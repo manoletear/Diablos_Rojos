@@ -9,11 +9,11 @@ function money(n: number) {
 }
 
 const ESTADO_STYLE: Record<string, string> = {
-  pendiente: "bg-amber-50 text-amber-700",
-  parcial: "bg-blue-50 text-blue-700",
+  pendiente: "bg-warning-bg text-warning",
+  parcial: "bg-info-bg text-info",
   por_comprobar: "bg-purple-50 text-purple-700",
-  pagado: "bg-green-50 text-green-700",
-  vencido: "bg-red-50 text-red-700",
+  pagado: "bg-success-bg text-success",
+  vencido: "bg-error-bg text-error",
 };
 
 export default async function FinanzasPage() {
@@ -63,13 +63,13 @@ export default async function FinanzasPage() {
           <h1 className="text-2xl font-bold text-neutral-900">Finanzas</h1>
           <p className="text-sm text-neutral-500">Gestión de cuotas y pagos</p>
         </div>
-        <button className="rounded-md bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800">
+        <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
           + Nuevo Pago
         </button>
       </div>
 
       {error && (
-        <div className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="mt-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary-600">
           {error.message}
         </div>
       )}

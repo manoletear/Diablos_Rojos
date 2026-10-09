@@ -17,13 +17,13 @@ export default async function CategoriasPage() {
             Gestión de categorías deportivas
           </p>
         </div>
-        <button className="rounded-md bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800">
+        <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
           + Nueva Categoría
         </button>
       </div>
 
       {error && (
-        <div className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="mt-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary-600">
           {error.message}
         </div>
       )}
