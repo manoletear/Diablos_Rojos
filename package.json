@@ -1,9 +1,9 @@
 {
-  "name": "app-scaffold",
+  "name": "diablos-rojos",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env NODE_EXTRA_CA_CERTS=\"C:\\ProgramData\\Avast Software\\Avast\\wscert.pem\" next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -21,6 +21,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
     "tailwindcss": "^4",
