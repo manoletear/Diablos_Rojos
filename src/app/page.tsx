@@ -46,10 +46,12 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-dr-neutral-900 text-white">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-white/10 bg-dr-neutral-900/90 px-6 py-5 backdrop-blur sm:px-10">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Diablos Rojos" className="h-9 w-9 object-contain" />
-          <span className="text-lg font-bold tracking-wide">DIABLOS ROJOS</span>
+      <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-6 py-4 sm:px-10">
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="Diablos Rojos" className="h-10 w-10 object-contain" />
+          <span className="text-lg font-bold tracking-wide text-dr-neutral-900">DIABLOS ROJOS</span>
+          <div className="h-8 w-px bg-neutral-200" />
+          <img src="/images/logo-nublense.png" alt="Club Ñublense" className="h-10 w-10 object-contain" />
         </div>
         <Link
           href="/login"

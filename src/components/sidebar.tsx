@@ -63,9 +63,10 @@ export function Sidebar({
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-neutral-200 bg-white">
-      <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-4 py-4">
+      <div className="flex items-center gap-2 border-b border-neutral-200 bg-white px-4 py-4">
         <img src="/logo.png" alt="DR Taktik" className="h-9 w-9 object-contain" />
-        <span className="text-sm font-bold tracking-wide text-dr-neutral-900">DIABLOS ROJOS</span>
+        <span className="text-sm font-bold tracking-wide text-dr-neutral-900">TAKTIK</span>
+        <img src="/images/logo-nublense.png" alt="Club Ñublense" className="ml-auto h-8 w-8 object-contain" />
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {nav.map((item) =>
