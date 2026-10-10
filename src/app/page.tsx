@@ -64,10 +64,10 @@ export default async function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-20 pt-20 text-center sm:px-10">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url(/images/hero-diablos.jpg)" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-dr-neutral-900/60 via-dr-neutral-900/80 to-dr-neutral-900" />
+        <div className="absolute inset-0 bg-gradient-to-b from-dr-neutral-900/20 via-dr-neutral-900/50 to-dr-neutral-900" />
         <div className="relative mx-auto max-w-4xl">
           <div className="mx-auto mb-5 w-fit rounded-full bg-primary-500/15 px-4 py-1.5 text-xs font-semibold text-primary-400">
             Academia oficial de Ñublense
