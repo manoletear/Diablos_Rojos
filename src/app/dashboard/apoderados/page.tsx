@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ApoderadosPage({
@@ -52,9 +53,9 @@ export default async function ApoderadosPage({
           <h1 className="text-2xl font-bold text-neutral-900">Apoderados</h1>
           <p className="text-sm text-neutral-500">Gestión de padres y tutores</p>
         </div>
-        <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+        <Link href="/dashboard/apoderados/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
           + Nuevo Apoderado
-        </button>
+        </Link>
       </div>
 
       {error && (
@@ -136,7 +137,11 @@ export default async function ApoderadosPage({
                           <span key={s} className="rounded border border-info px-2 py-0.5 text-xs text-info">{s}</span>
                         ))}
                       </td>
-                      <td className="px-3 py-3 text-neutral-400">⋮</td>
+                      <td className="px-3 py-3">
+                        <Link href={`/dashboard/apoderados/${a.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
+                          Editar
+                        </Link>
+                      </td>
                     </tr>
                   );
                 })

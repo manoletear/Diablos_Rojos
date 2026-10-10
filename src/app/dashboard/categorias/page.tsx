@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 function money(n: number | null) {
@@ -26,9 +27,9 @@ export default async function CategoriasPage() {
           <h1 className="text-2xl font-bold text-neutral-900">Categorías</h1>
           <p className="text-sm text-neutral-500">Gestión de categorías deportivas</p>
         </div>
-        <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+        <Link href="/dashboard/categorias/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
           + Nueva Categoría
-        </button>
+        </Link>
       </div>
 
       {error && (
@@ -91,7 +92,11 @@ export default async function CategoriasPage() {
                         {cat.estado === "activa" ? "Activa" : "Inactiva"}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-neutral-400">⋮</td>
+                    <td className="px-3 py-3">
+                      <Link href={`/dashboard/categorias/${cat.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
+                        Editar
+                      </Link>
+                    </td>
                   </tr>
                 );
               })}

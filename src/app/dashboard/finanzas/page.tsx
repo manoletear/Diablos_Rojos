@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 const PAGE_SIZE = 50;
@@ -102,9 +103,9 @@ export default async function FinanzasPage({
           <h1 className="text-2xl font-bold text-neutral-900">Finanzas</h1>
           <p className="text-sm text-neutral-500">Gestión de cuotas y pagos</p>
         </div>
-        <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+        <Link href="/dashboard/finanzas/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
           + Nuevo Pago
-        </button>
+        </Link>
       </div>
 
       {error && <div className="mt-4 rounded-md bg-error-bg px-3 py-2 text-sm text-error">{error.message}</div>}
@@ -176,8 +177,12 @@ export default async function FinanzasPage({
               pagos.map((p) => {
                 const alumno = p.alumnos as unknown as { nombre: string; apellido: string } | null;
                 return (
-                  <tr key={p.id}>
-                    <td className="px-4 py-3 font-medium text-neutral-900">{alumno?.nombre} {alumno?.apellido}</td>
+                  <tr key={p.id} className="cursor-pointer hover:bg-neutral-50">
+                    <td className="px-4 py-3 font-medium text-neutral-900">
+                      <Link href={`/dashboard/finanzas/${p.id}`} className="hover:text-primary-600 hover:underline">
+                        {alumno?.nombre} {alumno?.apellido}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-neutral-600">
                       {p.tipo === "matricula" ? "Matrícula de temporada" : `Mensualidad ${p.periodo}`}
                     </td>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 const PAGE_SIZE = 50;
@@ -114,9 +115,9 @@ export default async function AlumnosPage({
           >
             Invitados
           </button>
-          <button className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+          <Link href="/dashboard/alumnos/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
             + Nuevo Alumno
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -266,7 +267,11 @@ export default async function AlumnosPage({
                       <td className="px-3 py-3 text-neutral-600">
                         {asist ? `${asist.presentes} / ${asist.total}` : "0 / 0"}
                       </td>
-                      <td className="px-3 py-3 text-neutral-400">⋮</td>
+                      <td className="px-3 py-3">
+                        <Link href={`/dashboard/alumnos/${a.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
+                          Editar
+                        </Link>
+                      </td>
                     </tr>
                   );
                 })

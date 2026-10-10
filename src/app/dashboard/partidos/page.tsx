@@ -90,6 +90,7 @@ export default async function PartidosPage({
                 <th className="px-3 py-3">Resultado</th>
                 <th className="px-3 py-3">Estado</th>
                 <th className="px-3 py-3">Convocados</th>
+                <th className="px-3 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -119,12 +120,17 @@ export default async function PartidosPage({
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ESTADO_STYLE[p.estado]}`}>{ESTADO_LABEL[p.estado]}</span>
                       </td>
                       <td className="px-3 py-3 text-neutral-600">{nConvocados > 0 ? `${nConvocados} jugadores` : "Sin convocatoria"}</td>
+                      <td className="px-3 py-3">
+                        <Link href={`/dashboard/partidos/${p.id}`} className="font-medium text-primary-600 hover:underline">
+                          Gestionar
+                        </Link>
+                      </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-neutral-400">
+                  <td colSpan={9} className="px-4 py-8 text-center text-neutral-400">
                     Sin partidos todavía. Crea el primero o importa el historial.
                   </td>
                 </tr>

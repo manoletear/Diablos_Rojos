@@ -43,3 +43,40 @@ export async function crearTorneo(formData: FormData) {
   revalidatePath("/dashboard/torneos");
   redirect("/dashboard/torneos");
 }
+
+export async function actualizarTorneo(id: string, formData: FormData) {
+  const supabase = await createClient();
+
+  const precioRaw = formData.get("precio") as string;
+  const categoriaIds = formData.getAll("categoria_id") as string[];
+
+  const { error } = await supabase
+    .from("torneos")
+    .update({
+      nombre: formData.get("nombre") as string,
+      tipo: formData.get("tipo") as string,
+      fecha_inicio: (formData.get("fecha_inicio") as string) || null,
+      fecha_fin: (formData.get("fecha_fin") as string) || null,
+      estado: formData.get("estado") as string,
+      precio: precioRaw ? Number(precioRaw) : null,
+      obligatorio: formData.get("obligatorio") === "on",
+      requiere_aprobacion: formData.get("requiere_aprobacion") === "on",
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  await supabase.from("torneo_categorias").delete().eq("torneo_id", id);
+  if (categoriaIds.length > 0) {
+    await supabase.from("torneo_categorias").insert(categoriaIds.map((categoria_id) => ({ torneo_id: id, categoria_id })));
+  }
+
+  revalidatePath("/dashboard/torneos");
+  redirect("/dashboard/torneos");
+}
+
+export async function eliminarTorneo(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("torneos").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/torneos");
+}

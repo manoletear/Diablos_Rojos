@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { eliminarTorneo } from "./actions";
 
 function money(n: number | null) {
   if (n === null) return null;
@@ -44,6 +45,7 @@ export default async function TorneosPage() {
                 <th className="px-3 py-3">Sede</th>
                 <th className="px-3 py-3">Categorías</th>
                 <th className="px-3 py-3">Partidos</th>
+                <th className="px-3 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -82,12 +84,22 @@ export default async function TorneosPage() {
                         </div>
                       </td>
                       <td className="px-3 py-3 text-neutral-600">{partidosCount}</td>
+                      <td className="px-3 py-3">
+                        <div className="flex items-center gap-2">
+                          <Link href={`/dashboard/torneos/${t.id}/editar`} className="font-medium text-primary-600 hover:underline">
+                            Editar
+                          </Link>
+                          <form action={eliminarTorneo.bind(null, t.id)}>
+                            <button type="submit" className="font-medium text-error hover:underline">Eliminar</button>
+                          </form>
+                        </div>
+                      </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-neutral-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-neutral-400">
                     Sin torneos todavía. Crea el primero.
                   </td>
                 </tr>
