@@ -34,7 +34,7 @@ export const NAV: (NavItem | NavGroup)[] = [
     label: "Gestión",
     items: [
       { label: "Asistencias", href: "/dashboard/asistencias", roles: ["director", "admin", "entrenador"] },
-      { label: "Reporte Asistencias", href: "/dashboard/asistencias/reporte", roles: ["director", "admin"] },
+      { label: "Reporte Asistencias", href: "/dashboard/asistencias/reporte", roles: ["director", "admin", "entrenador"] },
       { label: "Dashboard Ejecutivo", href: "/dashboard/ejecutivo", roles: ["director", "admin"] },
     ],
   },
