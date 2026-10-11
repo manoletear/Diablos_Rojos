@@ -33,6 +33,13 @@ async function getData() {
     supabase.from("alumnos").select("id, nombre, apellido, fecha_nacimiento, categorias(nombre)").not("fecha_nacimiento", "is", null),
   ]);
 
+  const { data: proximosPartidos } = await supabase
+    .from("partidos")
+    .select("id, rival, fecha_hora, local_o_visita, categorias(nombre), torneos(nombre)")
+    .gte("fecha_hora", new Date().toISOString())
+    .order("fecha_hora", { ascending: true })
+    .limit(5);
+
   const resumenPagos = (pagos ?? []).reduce(
     (acc, p) => {
       acc[p.estado] = (acc[p.estado] ?? 0) + 1;
@@ -114,6 +121,7 @@ async function getData() {
     cumpleHoy,
     cumpleSemana,
     alumnosDeuda,
+    proximosPartidos: proximosPartidos ?? [],
   };
 }
 
@@ -301,11 +309,37 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Próximos partidos - modulo Deportivo aun no implementado (Fase 4) */}
+      {/* Próximos partidos */}
       <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-5">
-        <div className="font-semibold text-neutral-900">Próximos Partidos</div>
-        <div className="mt-4 rounded-lg border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-400">
-          Módulo Deportivo (partidos, convocatorias, torneos) pendiente de construir — Fase 4 del plan.
+        <div className="flex items-center justify-between">
+          <div className="font-semibold text-neutral-900">Próximos Partidos</div>
+          <Link href="/dashboard/partidos" className="text-sm font-medium text-primary-600">Ver todos</Link>
+        </div>
+        <div className="mt-4 space-y-2">
+          {d.proximosPartidos.length > 0 ? (
+            d.proximosPartidos.map((p) => {
+              const cat = (p.categorias as unknown as { nombre: string } | null)?.nombre;
+              const torneo = (p.torneos as unknown as { nombre: string } | null)?.nombre;
+              const fecha = new Date(p.fecha_hora);
+              return (
+                <Link
+                  key={p.id}
+                  href={`/dashboard/partidos/${p.id}`}
+                  className="flex items-center justify-between rounded-md bg-neutral-50 px-3 py-2 text-sm hover:bg-neutral-100"
+                >
+                  <div>
+                    <div className="font-medium text-neutral-800">{cat} vs {p.rival} <span className="text-xs text-neutral-400">({p.local_o_visita})</span></div>
+                    <div className="text-xs text-neutral-400">{torneo ?? "Amistoso"}</div>
+                  </div>
+                  <div className="text-xs text-neutral-500">
+                    {fecha.toLocaleDateString("es-CL")} {fecha.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                </Link>
+              );
+            })
+          ) : (
+            <div className="text-sm text-neutral-400">Sin partidos programados.</div>
+          )}
         </div>
       </div>
 
@@ -325,9 +359,12 @@ export default async function DashboardPage() {
           >
             Generar Pagos Mensuales
           </Link>
-          <span className="cursor-not-allowed rounded-md border border-neutral-200 px-4 py-2.5 text-center text-sm font-medium text-neutral-400">
-            Crear Partido (Fase 4)
-          </span>
+          <Link
+            href="/dashboard/partidos/nuevo"
+            className="rounded-md border border-neutral-200 px-4 py-2.5 text-center text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+          >
+            Crear Partido
+          </Link>
         </div>
       </div>
     </div>

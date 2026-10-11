@@ -34,8 +34,9 @@ export const NAV: (NavItem | NavGroup)[] = [
     label: "Gestión",
     items: [
       { label: "Asistencias", href: "/dashboard/asistencias", roles: ["director", "admin", "entrenador"] },
-      { label: "Reporte Asistencias", href: "/dashboard/asistencias/reporte", roles: ["director", "admin", "entrenador"] },
-      { label: "Dashboard Ejecutivo", href: "/dashboard/ejecutivo", roles: ["director", "admin"] },
+      // Reporte Asistencias y Dashboard Ejecutivo: sin pagina construida
+      // todavia (/dashboard/asistencias/reporte y /dashboard/ejecutivo
+      // 404). Mismo criterio que Salud/Comunicacion abajo.
     ],
   },
   {
@@ -46,8 +47,10 @@ export const NAV: (NavItem | NavGroup)[] = [
       { label: "Flujo de Caja", href: "/dashboard/flujo-caja", roles: ["director", "admin"] },
     ],
   },
-  { label: "Salud", href: "/dashboard/salud", roles: ["director", "admin"] },
-  { label: "Comunicación", href: "/dashboard/comunicacion", roles: ["director", "admin"] },
+  // Salud y Comunicación: tablas + RLS ya existen en Supabase, pero no
+  // tienen UI construida todavía (/dashboard/salud y /dashboard/comunicacion
+  // no existen = 404). Sacados del nav hasta tener la página real; no borrar
+  // esta nota al construirlas, solo agregar el item de vuelta.
 ];
 
 export function isGroup(item: NavItem | NavGroup): item is NavGroup {
