@@ -1,9 +1,44 @@
-# Migración Supabase → Cloudflare — Fase 2: Diseño
+# Migración Supabase → Cloudflare
 
-Estado: **diseño, nada ejecutado todavía**. Requiere tu aprobación explícita
-antes de Fase 3 (construcción). Ver Fase 1 en el historial de conversación
-(59 tablas, 117 RLS policies, 20 funciones, 13 triggers, 36 enums, 1 usuario
-Auth real, 17 MB).
+## Estado (actualizado 2026-10-11)
+
+- **Fase 1 — Diagnóstico**: ✅ completa (ver sección histórica abajo).
+- **Fase 2 — Diseño**: ✅ completa (mapeo de esquema, plan de ejecución).
+- **Fase 3 — Schema + datos en D1 staging**: ✅ completa.
+  - DB `taktik-d1-staging` (`ac2ddd0b-ebb4-414b-a0bf-00c2d99d2aaa`), 59 tablas.
+  - Scripts en `scripts/migrate-to-d1/01-generate-schema.js` y `03-migrate-data.js`
+    (introspección automática de Postgres, reutilizables si hay que resincronizar).
+  - Datos reales copiados y verificados 1:1 con Supabase (alumnos 203,
+    apoderados 397, pagos 196, convocatoria_jugadores 4953). `lesiones_clinico`
+    y `psicologia_sesiones` en 0 filas — nunca se cargó un registro clínico real.
+  - Supabase intacto en todo momento (solo lectura).
+- **Fase 4 — Adaptor de datos**: ✅ prueba de concepto completa.
+  - `src/lib/db/adapter.ts` — interfaz `DbAdapter` (`query`/`queryOne`), agnóstica de backend.
+  - `src/lib/db/postgres-adapter.ts` — implementación real contra Supabase.
+  - `src/lib/db/d1-adapter.ts` — implementación contra D1 vía HTTP API (puente
+    temporal; en Fase 7, con hosting en Workers, se cambia al binding nativo
+    `env.DB.prepare()`, sin HTTP de por medio). Hoy requiere `CLOUDFLARE_API_TOKEN`
+    con permiso D1:Edit — **pendiente generar uno acotado antes de producción**,
+    las pruebas de este momento reusaron el token OAuth personal de la CLI.
+  - `scripts/migrate-to-d1/04-compare-queries.js` — corrió 3 consultas
+    representativas (Alumnos, Finanzas, Partidos/Convocatoria) contra ambos
+    backends. **Paridad confirmada**: los únicos 2 casos marcados con
+    diferencia fueron orden entre filas empatadas (sin columna de desempate
+    en el `ORDER BY`), no error de datos — los valores (conteos, sumas,
+    conversión a centavos) coinciden exactamente.
+  - **Nota de alcance**: no se migraron los ~30 módulos de la app a usar este
+    adaptor todavía — eso es trabajo real pendiente (reemplazar cada
+    `createClient()` de Supabase por `DbAdapter`), fuera del scope de esta
+    prueba de concepto. Se hace en sub-pasos cuando se retome.
+- **Fase 5 (RLS→código), 6 (Auth) y 7 (hosting)**: no iniciadas. Requieren
+  tu aprobación explícita antes de empezar cada una.
+
+---
+
+## Fase 1-2 (histórico)
+
+Ver Fase 1 en el historial de conversación (59 tablas, 117 RLS policies, 20
+funciones, 13 triggers, 36 enums, 1 usuario Auth real, 17 MB).
 
 ## 1. Mapeo de esquema (Postgres → D1/SQLite)
 
