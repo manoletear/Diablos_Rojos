@@ -61,11 +61,58 @@ export function Sidebar({
 
   const nav = filterForRole(NAV, role);
 
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem("sidebar-collapsed") === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  function toggle() {
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem("sidebar-collapsed", next ? "1" : "0");
+      } catch {
+        // localStorage no disponible (privado/bloqueado), solo pierde la preferencia
+      }
+      return next;
+    });
+  }
+
+  if (collapsed) {
+    return (
+      <aside className="flex h-screen w-14 flex-col items-center border-r border-neutral-200 bg-white py-3">
+        <button
+          onClick={toggle}
+          aria-label="Mostrar menú"
+          className="rounded-md p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+        <img src="/images/logo-taktik.png" alt="DR Taktik" className="mt-4 h-8 w-auto object-contain" />
+      </aside>
+    );
+  }
+
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-neutral-200 bg-white">
       <div className="flex items-center gap-2 border-b border-neutral-200 bg-white px-4 py-3">
         <img src="/images/logo-taktik.png" alt="DR Taktik" className="h-12 w-auto object-contain" />
         <img src="/images/logo-nublense.png" alt="Club Ñublense" className="ml-auto h-8 w-8 object-contain" />
+        <button
+          onClick={toggle}
+          aria-label="Esconder menú"
+          className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {nav.map((item) =>
