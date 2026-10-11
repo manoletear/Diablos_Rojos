@@ -12,6 +12,11 @@ function money(n: number | null) {
 
 export default async function CategoriasPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: perfil } = await supabase.from("profiles").select("rol").eq("id", user?.id ?? "").maybeSingle();
+  const puedeEscribir = perfil?.rol === "director" || perfil?.rol === "admin";
 
   const { data: categorias, error } = await supabase
     .from("categorias")
@@ -27,9 +32,11 @@ export default async function CategoriasPage() {
           <h1 className="text-2xl font-bold text-neutral-900">Categorías</h1>
           <p className="text-sm text-neutral-500">Gestión de categorías deportivas</p>
         </div>
-        <Link href="/dashboard/categorias/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
-          + Nueva Categoría
-        </Link>
+        {puedeEscribir && (
+          <Link href="/dashboard/categorias/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+            + Nueva Categoría
+          </Link>
+        )}
       </div>
 
       {error && (
@@ -51,7 +58,7 @@ export default async function CategoriasPage() {
                 <th className="px-3 py-3">Mensualidad</th>
                 <th className="px-3 py-3">Sede</th>
                 <th className="px-3 py-3">Estado</th>
-                <th className="px-3 py-3">Acciones</th>
+                {puedeEscribir && <th className="px-3 py-3">Acciones</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -92,11 +99,13 @@ export default async function CategoriasPage() {
                         {cat.estado === "activa" ? "Activa" : "Inactiva"}
                       </span>
                     </td>
-                    <td className="px-3 py-3">
-                      <Link href={`/dashboard/categorias/${cat.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
-                        Editar
-                      </Link>
-                    </td>
+                    {puedeEscribir && (
+                      <td className="px-3 py-3">
+                        <Link href={`/dashboard/categorias/${cat.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
+                          Editar
+                        </Link>
+                      </td>
+                    )}
                   </tr>
                 );
               })}

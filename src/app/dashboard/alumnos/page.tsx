@@ -37,6 +37,11 @@ export default async function AlumnosPage({
   const offset = (page - 1) * PAGE_SIZE;
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: perfil } = await supabase.from("profiles").select("rol").eq("id", user?.id ?? "").maybeSingle();
+  const puedeEscribir = perfil?.rol === "director" || perfil?.rol === "admin";
 
   const [{ count: countActivos }, { count: countRetirados }, { data: categorias }, { data: posicionesRaw }] =
     await Promise.all([
@@ -100,25 +105,27 @@ export default async function AlumnosPage({
           <h1 className="text-2xl font-bold text-neutral-900">Alumnos</h1>
           <p className="text-sm text-neutral-500">Gestión de estudiantes de la academia</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            disabled
-            title="Pendiente de implementar"
-            className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-400"
-          >
-            ⬇ Exportar CSV
-          </button>
-          <button
-            disabled
-            title="Pendiente de implementar"
-            className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-400"
-          >
-            Invitados
-          </button>
-          <Link href="/dashboard/alumnos/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
-            + Nuevo Alumno
-          </Link>
-        </div>
+        {puedeEscribir && (
+          <div className="flex gap-2">
+            <button
+              disabled
+              title="Pendiente de implementar"
+              className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-400"
+            >
+              ⬇ Exportar CSV
+            </button>
+            <button
+              disabled
+              title="Pendiente de implementar"
+              className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-400"
+            >
+              Invitados
+            </button>
+            <Link href="/dashboard/alumnos/nuevo" className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+              + Nuevo Alumno
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-5">
@@ -199,7 +206,7 @@ export default async function AlumnosPage({
                 <th className="px-3 py-3">Posición</th>
                 <th className="px-3 py-3">Estado</th>
                 <th className="px-3 py-3">Asistencias</th>
-                <th className="px-3 py-3">Acciones</th>
+                {puedeEscribir && <th className="px-3 py-3">Acciones</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -267,17 +274,19 @@ export default async function AlumnosPage({
                       <td className="px-3 py-3 text-neutral-600">
                         {asist ? `${asist.presentes} / ${asist.total}` : "0 / 0"}
                       </td>
-                      <td className="px-3 py-3">
-                        <Link href={`/dashboard/alumnos/${a.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
-                          Editar
-                        </Link>
-                      </td>
+                      {puedeEscribir && (
+                        <td className="px-3 py-3">
+                          <Link href={`/dashboard/alumnos/${a.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
+                            Editar
+                          </Link>
+                        </td>
+                      )}
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-neutral-400">
+                  <td colSpan={puedeEscribir ? 9 : 8} className="px-4 py-8 text-center text-neutral-400">
                     Sin alumnos que coincidan con los filtros.
                   </td>
                 </tr>

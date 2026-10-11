@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { ApoderadoHome } from "./apoderado-home";
+import { EntrenadorHome } from "./entrenador-home";
 
 function money(n: number) {
   return new Intl.NumberFormat("es-CL", {
@@ -74,7 +76,7 @@ async function getData() {
     .select("id")
     .eq("fecha", hoy);
   const sesionIds = (sesionesHoy ?? []).map((s) => s.id);
-  let alumnosDeuda: { nombre: string; apellido: string }[] = [];
+  const alumnosDeuda: { nombre: string; apellido: string }[] = [];
   if (sesionIds.length > 0) {
     const { data: presentesHoy } = await supabase
       .from("registros_asistencia")
@@ -116,6 +118,15 @@ async function getData() {
 }
 
 export default async function DashboardPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase.from("profiles").select("rol").eq("id", user?.id ?? "").maybeSingle();
+
+  if (profile?.rol === "apoderado") return <ApoderadoHome userId={user!.id} />;
+  if (profile?.rol === "entrenador") return <EntrenadorHome userId={user!.id} />;
+
   const d = await getData();
 
   const pasos = [
