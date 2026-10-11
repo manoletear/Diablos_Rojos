@@ -81,7 +81,7 @@ export async function toggleConvocado(
   if (convocar) {
     const { error } = await supabase
       .from("convocatoria_jugadores")
-      .upsert({ convocatoria_id: convocatoriaId, alumno_id: alumnoId, estado: "confirmada" }, { onConflict: "convocatoria_id,alumno_id" });
+      .upsert({ convocatoria_id: convocatoriaId, alumno_id: alumnoId, estado: "pendiente" }, { onConflict: "convocatoria_id,alumno_id" });
     if (error) throw new Error(error.message);
 
     // El insert dispara trg_mensaje_convocatoria (DB), que crea la fila en `mensajes`
@@ -180,4 +180,22 @@ export async function guardarEstadisticaJugador(partidoId: string, alumnoId: str
   );
   if (error) throw new Error(error.message);
   revalidatePath(`/dashboard/partidos/${partidoId}`);
+}
+
+export async function confirmarConvocatoria(convocatoriaId: string, alumnoId: string, confirma: boolean) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("convocatoria_jugadores")
+    .update({
+      estado: confirma ? "confirmada" : "rechazada",
+      confirmado_por: user?.id ?? null,
+      confirmado_en: new Date().toISOString(),
+    })
+    .eq("convocatoria_id", convocatoriaId)
+    .eq("alumno_id", alumnoId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard");
 }

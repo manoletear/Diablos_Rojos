@@ -41,7 +41,10 @@ export default async function AlumnosPage({
     data: { user },
   } = await supabase.auth.getUser();
   const { data: perfil } = await supabase.from("profiles").select("rol").eq("id", user?.id ?? "").maybeSingle();
-  const puedeEscribir = perfil?.rol === "director" || perfil?.rol === "admin";
+  const puedeCrear = perfil?.rol === "director" || perfil?.rol === "admin";
+  // Entrenador puede editar la ficha de SUS alumnos (RLS lo scope solo a su categoria),
+  // pero no crear ni eliminar — eso sigue siendo solo director/admin.
+  const puedeEditar = puedeCrear || perfil?.rol === "entrenador";
 
   const [{ count: countActivos }, { count: countRetirados }, { data: categorias }, { data: posicionesRaw }] =
     await Promise.all([
@@ -105,7 +108,7 @@ export default async function AlumnosPage({
           <h1 className="text-2xl font-bold text-neutral-900">Alumnos</h1>
           <p className="text-sm text-neutral-500">Gestión de estudiantes de la academia</p>
         </div>
-        {puedeEscribir && (
+        {puedeCrear && (
           <div className="flex gap-2">
             <button
               disabled
@@ -206,7 +209,7 @@ export default async function AlumnosPage({
                 <th className="px-3 py-3">Posición</th>
                 <th className="px-3 py-3">Estado</th>
                 <th className="px-3 py-3">Asistencias</th>
-                {puedeEscribir && <th className="px-3 py-3">Acciones</th>}
+                {puedeEditar && <th className="px-3 py-3">Acciones</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
@@ -274,7 +277,7 @@ export default async function AlumnosPage({
                       <td className="px-3 py-3 text-neutral-600">
                         {asist ? `${asist.presentes} / ${asist.total}` : "0 / 0"}
                       </td>
-                      {puedeEscribir && (
+                      {puedeEditar && (
                         <td className="px-3 py-3">
                           <Link href={`/dashboard/alumnos/${a.id}/editar`} className="text-xs font-medium text-primary-600 hover:underline">
                             Editar
@@ -286,7 +289,7 @@ export default async function AlumnosPage({
                 })
               ) : (
                 <tr>
-                  <td colSpan={puedeEscribir ? 9 : 8} className="px-4 py-8 text-center text-neutral-400">
+                  <td colSpan={puedeEditar ? 9 : 8} className="px-4 py-8 text-center text-neutral-400">
                     Sin alumnos que coincidan con los filtros.
                   </td>
                 </tr>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { ConfirmarConvocatoria } from "@/components/confirmar-convocatoria";
 
 function money(n: number) {
   return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(n);
@@ -43,7 +44,7 @@ export async function ApoderadoHome({ userId }: { userId: string }) {
   const alumnoIds = hijos.map((h) => h.id);
   const categoriaIds = [...new Set(hijos.map((h) => h.categoria_id).filter(Boolean))] as string[];
 
-  const [{ data: pagos }, { data: proximosPartidos }, { data: asistenciaReciente }] = await Promise.all([
+  const [{ data: pagos }, { data: proximosPartidos }, { data: asistenciaReciente }, { data: convocatoriasPendientes }] = await Promise.all([
     alumnoIds.length > 0
       ? supabase.from("pagos").select("id, alumno_id, tipo, periodo, monto_total, monto_pagado, estado, fecha_vencimiento").in("alumno_id", alumnoIds).neq("estado", "pagado").order("fecha_vencimiento", { ascending: true })
       : Promise.resolve({ data: [] }),
@@ -53,12 +54,46 @@ export async function ApoderadoHome({ userId }: { userId: string }) {
     alumnoIds.length > 0
       ? supabase.from("registros_asistencia").select("alumno_id, estado, sesiones_entrenamiento(fecha)").in("alumno_id", alumnoIds).order("sesion_id", { ascending: false }).limit(10)
       : Promise.resolve({ data: [] }),
+    alumnoIds.length > 0
+      ? supabase
+          .from("convocatoria_jugadores")
+          .select("convocatoria_id, alumno_id, estado, convocatorias(partidos(rival, fecha_hora, categorias(nombre)))")
+          .in("alumno_id", alumnoIds)
+          .eq("estado", "pendiente")
+      : Promise.resolve({ data: [] }),
   ]);
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-neutral-900">Hola, {apoderado.nombre.split(" ")[0]}</h1>
       <p className="text-sm text-neutral-500">Resumen de tu familia en Diablos Rojos</p>
+
+      {convocatoriasPendientes && convocatoriasPendientes.length > 0 && (
+        <div className="mt-6 rounded-xl border border-warning bg-warning-bg p-5">
+          <div className="font-semibold text-neutral-900">📣 Citaciones por confirmar</div>
+          <div className="mt-4 space-y-3">
+            {convocatoriasPendientes.map((c) => {
+              const alumno = hijos.find((h) => h.id === c.alumno_id);
+              const partido = (c.convocatorias as unknown as { partidos: { rival: string; fecha_hora: string; categorias: { nombre: string } | null } | null } | null)?.partidos;
+              if (!partido) return null;
+              const fecha = new Date(partido.fecha_hora);
+              return (
+                <div key={`${c.convocatoria_id}-${c.alumno_id}`} className="flex items-center justify-between rounded-lg bg-white px-4 py-3">
+                  <div>
+                    <div className="font-medium text-neutral-900">
+                      {alumno?.nombre} — {partido.categorias?.nombre} vs {partido.rival}
+                    </div>
+                    <div className="text-xs text-neutral-500">
+                      {fecha.toLocaleDateString("es-CL")} {fecha.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                  <ConfirmarConvocatoria convocatoriaId={c.convocatoria_id} alumnoId={c.alumno_id} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {hijos.map((h) => (

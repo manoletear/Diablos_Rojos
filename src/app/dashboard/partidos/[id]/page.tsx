@@ -13,10 +13,13 @@ import { ConvocarToggle } from "@/components/convocar-toggle";
 
 export default async function DetallePartidoPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ buscar?: string }>;
 }) {
   const { id } = await params;
+  const { buscar } = await searchParams;
   const supabase = await createClient();
 
   const { data: partido } = await supabase
@@ -49,6 +52,38 @@ export default async function DetallePartidoPage({
   );
   const minutajePorAlumno = new Map((minutajes ?? []).map((m) => [m.alumno_id, m]));
   const fecha = new Date(partido.fecha_hora);
+
+  // Jugadores convocados que NO son de la categoria del partido (citados
+  // de otra categoria) — hay que mostrarlos igual en la tabla, si no
+  // desaparecen de la vista aunque esten convocados.
+  const idsPropios = new Set((alumnosCategoria ?? []).map((a) => a.id));
+  const idsExternos = [...convocadosIds].filter((aid) => !idsPropios.has(aid));
+  const { data: alumnosExternos } =
+    idsExternos.length > 0
+      ? await supabase.from("alumnos").select("id, nombre, apellido, categorias(nombre)").in("id", idsExternos)
+      : { data: [] as { id: string; nombre: string; apellido: string; categorias: { nombre: string } | null }[] };
+
+  const listaConvocatoria = [
+    ...(alumnosCategoria ?? []).map((a) => ({ ...a, externo: null as string | null })),
+    ...(alumnosExternos ?? []).map((a) => ({
+      ...a,
+      externo: (a.categorias as unknown as { nombre: string } | null)?.nombre ?? "otra categoría",
+    })),
+  ];
+
+  // Buscador para citar jugadores de otras categorias
+  let resultadosBusqueda: { id: string; nombre: string; apellido: string; categorias: { nombre: string } | null }[] = [];
+  if (buscar && buscar.trim().length >= 2) {
+    const { data } = await supabase
+      .from("alumnos")
+      .select("id, nombre, apellido, categorias(nombre)")
+      .neq("categoria_id", categoria.id)
+      .eq("estado", "matriculado")
+      .or(`nombre.ilike.%${buscar}%,apellido.ilike.%${buscar}%`)
+      .order("apellido")
+      .limit(10);
+    resultadosBusqueda = (data ?? []) as unknown as typeof resultadosBusqueda;
+  }
 
   const actualizarConId = actualizarPartido.bind(null, id);
   const lineupConId = guardarLineup.bind(null, id);
@@ -158,12 +193,15 @@ export default async function DetallePartidoPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {alumnosCategoria?.map((a) => {
+              {listaConvocatoria.map((a) => {
                 const convocado = convocadosIds.has(a.id);
                 const m = minutajePorAlumno.get(a.id);
                 return (
                   <tr key={a.id}>
-                    <td className="px-3 py-2">{a.nombre} {a.apellido}</td>
+                    <td className="px-3 py-2">
+                      {a.nombre} {a.apellido}
+                      {a.externo && <span className="ml-2 rounded border border-info px-1.5 py-0.5 text-xs text-info">{a.externo}</span>}
+                    </td>
                     <td className="px-3 py-2">
                       <ConvocarToggle partidoId={id} alumnoId={a.id} convocado={convocado} />
                     </td>
@@ -182,13 +220,44 @@ export default async function DetallePartidoPage({
             </tbody>
           </table>
         </div>
+
+        <div className="mt-4 border-t border-neutral-200 pt-4">
+          <div className="text-xs font-medium uppercase text-neutral-400">Citar jugador de otra categoría</div>
+          <form method="get" className="mt-2 flex gap-2">
+            <input
+              type="text"
+              name="buscar"
+              defaultValue={buscar ?? ""}
+              placeholder="Buscar por nombre o apellido..."
+              className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            />
+            <button type="submit" className="rounded-md bg-dr-neutral-900 px-4 py-2 text-sm font-medium text-white">Buscar</button>
+          </form>
+          {buscar && (
+            <div className="mt-2 space-y-1">
+              {resultadosBusqueda.length > 0 ? (
+                resultadosBusqueda.map((a) => (
+                  <div key={a.id} className="flex items-center justify-between rounded-md bg-neutral-50 px-3 py-2 text-sm">
+                    <span>
+                      {a.nombre} {a.apellido}{" "}
+                      <span className="text-xs text-neutral-400">({a.categorias?.nombre ?? "sin categoría"})</span>
+                    </span>
+                    <ConvocarToggle partidoId={id} alumnoId={a.id} convocado={convocadosIds.has(a.id)} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-neutral-400">Sin resultados.</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Estadisticas */}
       <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-6">
         <div className="font-semibold text-neutral-900">Estadísticas por jugador</div>
         <div className="mt-3 space-y-2">
-          {alumnosCategoria?.filter((a) => convocadosIds.has(a.id)).map((a) => {
+          {listaConvocatoria.filter((a) => convocadosIds.has(a.id)).map((a) => {
             const m = minutajePorAlumno.get(a.id);
             const guardarConId = guardarEstadisticaJugador.bind(null, id, a.id);
             return (
@@ -218,7 +287,7 @@ export default async function DetallePartidoPage({
               </form>
             );
           })}
-          {alumnosCategoria?.filter((a) => convocadosIds.has(a.id)).length === 0 && (
+          {listaConvocatoria.filter((a) => convocadosIds.has(a.id)).length === 0 && (
             <div className="text-sm text-neutral-400">Convoca jugadores arriba para registrar sus estadísticas.</div>
           )}
         </div>

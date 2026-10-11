@@ -78,12 +78,48 @@ falla, no pasa nada visible). Falta:
 - Esconder botones Editar/Eliminar en páginas que el entrenador sí ve pero
   no puede escribir (ej. lista de Alumnos — ve, no edita).
 
-## 5. Pendiente de decisión (no tocado, para no asumir de más)
+## 5. Actualizado 2026-10-11 — requerimientos reales del director (WhatsApp)
 
-- ¿Entrenador carga mediciones antropométricas (peso/talla) directo, o eso
-  sigue siendo solo del equipo de salud?
-- ¿Entrenador reporta una lesión (capa operativa) desde el partido, o solo
-  la ve una vez que salud la carga?
+El director confirmó por escrito el alcance real de cada rol:
+
+> "Apoderado no ingresa datos, solo la confirmación a partidos (...) y el
+> pago de mensualidades y lo demás es solo visualizar pestañas"
+
+> "El profesor (...) dentro del perfil del niño puede crear la evaluación
+> y modificar datos personales o de la ficha de este mismo, además tiene
+> acceso a todas las categorías para así poder citar los demás niños para
+> 'X' partidos (...) en el en vivo también puede agregar niños al partido,
+> si no estaba en la citación previa"
+
+Implementado (migraciones 0044-0045):
+
+- **Apoderado confirma/rechaza su convocatoria** — antes no tenía ni
+  lectura de `convocatorias`/`convocatoria_jugadores`. Ahora puede leer y
+  actualizar `estado` (solo a `confirmada`/`rechazada`, solo la de su
+  propio hijo) — UI en el home del apoderado, sección "Citaciones por
+  confirmar".
+- **`toggleConvocado` ahora inserta `estado: 'pendiente'`** en vez de
+  `'confirmada'` directo — el entrenador convoca, el apoderado confirma.
+  Antes el entrenador se auto-confirmaba, saltándose al apoderado por
+  completo.
+- **Entrenador edita ficha de sus alumnos** (`alumnos` UPDATE, scoped a su
+  categoría) — antes solo lectura. Solo UPDATE, no INSERT/DELETE (crear/
+  eliminar alumnos sigue siendo solo director/admin).
+- **Entrenador registra "evaluaciones"** = mediciones antropométricas
+  (peso/talla, IMC calculado en código). **Percentil OMS queda sin
+  calcular** — la función `calcular_percentil_oms()` necesita `sexo`, que
+  no existe en `alumnos` todavía. No se inventó el dato.
+- **Entrenador cita jugadores de otras categorías** — la policy de
+  `convocatoria_jugadores` (migración 0040) ya lo permitía a nivel RLS,
+  faltaba el buscador en la UI (`partidos/[id]/page.tsx`, sección "Citar
+  jugador de otra categoría"). Probado en vivo: convocado un alumno de
+  Sub8 a un partido de Sub11.
+
+Pendiente (no tocado, fuera de este alcance):
+- Pago de mensualidades por el apoderado — requiere pasarela de pago
+  (MercadoPago), Fase 6 de `docs/PLAN.md`, decisión pendiente del club.
+- Reportar lesión (capa operativa) desde el partido en vivo — no pedido
+  explícitamente por el director en este mensaje, no se tocó.
 
 ## 6. Qué falta para que esto funcione end-to-end
 

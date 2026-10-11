@@ -41,3 +41,31 @@ export async function actualizarAlumno(id: string, formData: FormData) {
   revalidatePath("/dashboard/alumnos");
   redirect("/dashboard/alumnos");
 }
+
+export async function crearMedicion(alumnoId: string, formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const peso_kg = Number(formData.get("peso_kg"));
+  const talla_cm = Number(formData.get("talla_cm"));
+  // IMC = peso(kg) / talla(m)^2. Percentiles OMS quedan sin calcular: la
+  // tabla alumnos no tiene columna sexo todavia, y calcular_percentil_oms()
+  // la necesita — no se inventa un valor.
+  const talla_m = talla_cm / 100;
+  const imc = talla_m > 0 ? Math.round((peso_kg / (talla_m * talla_m)) * 100) / 100 : null;
+
+  const { error } = await supabase.from("mediciones_antropometricas").insert({
+    alumno_id: alumnoId,
+    fecha_medicion: formData.get("fecha_medicion") as string,
+    peso_kg,
+    talla_cm,
+    imc,
+    notas: (formData.get("notas") as string) || null,
+    medido_por: user?.id ?? null,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/dashboard/alumnos/${alumnoId}/editar`);
+}
