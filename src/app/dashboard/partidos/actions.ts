@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { enviarNotificacionesMensaje, type ResumenNotificacion } from "@/lib/notificaciones";
 
 export async function crearPartido(formData: FormData) {
   const supabase = await createClient();
@@ -69,7 +70,11 @@ async function getOrCrearConvocatoria(supabase: Awaited<ReturnType<typeof create
   return nueva.id;
 }
 
-export async function toggleConvocado(partidoId: string, alumnoId: string, convocar: boolean) {
+export async function toggleConvocado(
+  partidoId: string,
+  alumnoId: string,
+  convocar: boolean
+): Promise<ResumenNotificacion | null> {
   const supabase = await createClient();
   const convocatoriaId = await getOrCrearConvocatoria(supabase, partidoId);
 
@@ -78,6 +83,27 @@ export async function toggleConvocado(partidoId: string, alumnoId: string, convo
       .from("convocatoria_jugadores")
       .upsert({ convocatoria_id: convocatoriaId, alumno_id: alumnoId, estado: "confirmada" }, { onConflict: "convocatoria_id,alumno_id" });
     if (error) throw new Error(error.message);
+
+    // El insert dispara trg_mensaje_convocatoria (DB), que crea la fila en `mensajes`
+    // y encola el envio whatsapp_api (pendiente, stand-by). Acá recuperamos ese mensaje
+    // para además notificar por los canales ya activos: in-app, push y email.
+    const { data: mensaje } = await supabase
+      .from("mensajes")
+      .select("id, cuerpo_renderizado")
+      .eq("alumno_id", alumnoId)
+      .eq("source_type", "partido")
+      .eq("source_id", partidoId)
+      .eq("tipo", "convocatoria")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    revalidatePath(`/dashboard/partidos/${partidoId}`);
+
+    if (mensaje) {
+      return enviarNotificacionesMensaje(supabase, mensaje.id, mensaje.cuerpo_renderizado, alumnoId);
+    }
+    return null;
   } else {
     const { error } = await supabase
       .from("convocatoria_jugadores")
@@ -87,6 +113,7 @@ export async function toggleConvocado(partidoId: string, alumnoId: string, convo
     if (error) throw new Error(error.message);
   }
   revalidatePath(`/dashboard/partidos/${partidoId}`);
+  return null;
 }
 
 export async function guardarLineup(partidoId: string, formData: FormData) {

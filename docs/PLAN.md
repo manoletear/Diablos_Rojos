@@ -1,17 +1,34 @@
 # Plan de desarrollo — Plataforma Diablos Rojos (multiusuario)
 
-## PENDIENTE — Comunicación Fase 5 (decisiones diferidas 2026-10-09)
+## Comunicación — estado real (actualizado 2026-10-10)
 
-Schema completo ya construido y aplicado (migraciones 0032-0035): plantillas
-con catálogo de variables validado, `mensajes`/`mensaje_envios` separados,
-disparadores automáticos (pago vencido, convocatoria, entrenamiento
-suspendido/cambiado) ya ENCOLANDO de verdad en `en_cola`, función de
-confirmación de convocatoria por token. **Falta resolver antes de que esto
-sirva para algo real:**
+Canales activos hoy cuando se convoca a un alumno a un partido
+(`toggleConvocado`, `src/app/dashboard/partidos/actions.ts`):
+
+1. **In-app (campanita)**: ✅ funcionando. Fila `mensaje_envios` canal
+   `in_app`, visible en la campanita del Topbar para el apoderado logueado
+   (`src/components/notification-bell.tsx`), marcable como leída.
+2. **Push (navegador)**: ✅ funcionando con VAPID propio (generado local,
+   sin cuenta externa — `.env.local` / Netlify env vars). Requiere que el
+   apoderado presione "Activar notificaciones push" una vez (botón en el
+   Topbar, `src/components/push-subscribe-button.tsx`). Service worker:
+   `public/sw.js`.
+3. **Email**: ⏳ código real listo (`src/lib/notificaciones.ts`, vía API
+   Resend), pero **Resend no está conectado todavía** — falta que Manuel
+   cree la cuenta y pegue `RESEND_API_KEY` en `.env.local` / Netlify. Hasta
+   entonces cada envío queda honestamente marcado `fallido` con motivo
+   "Resend no conectado" (no se finge enviado). La UI de convocatoria avisa
+   esto en el momento del clic.
+
+### PENDIENTE — STAND BY: WhatsApp Business API
+
+Sin tocar, tal como estaba: `trg_mensaje_convocatoria` (migración 0034)
+sigue encolando en `mensaje_envios` canal `whatsapp_api` con estado
+`en_cola` para siempre, honestamente sin fingir envío, igual que el defecto
+que le vimos a Telar. **Falta resolver antes de activarlo:**
 
 1. **Cuenta WhatsApp Business API** (Meta Cloud API o BSP tipo Twilio/
-   360dialog) — sin esto los mensajes quedan en `en_cola` para siempre,
-   igual que el defecto que le vimos a Telar. Falta que el club la gestione.
+   360dialog) — decisión del club, no técnica.
 2. **Ruta pública `/confirmar/:token`** (sin login) para que el apoderado
    responda a una convocatoria — la función SQL `confirmar_convocatoria_por_token()`
    ya existe, falta la página Next.js que la llame. No tiene sentido
@@ -19,10 +36,8 @@ sirva para algo real:**
 3. **Límite anti-spam**: hardcodeado en 3 mensajes/apoderado/día
    (`puede_enviar_mensaje()`, migración 0034) — número puesto por default,
    ajustar con el club cuando se defina.
-4. **Notificaciones in-app + preferencias por canal**: no se construyó
-   (bajo impacto mientras solo haya un usuario activo real).
 
-Retomar esto cuando el club tenga resuelto el punto 1.
+Retomar cuando el club tenga resuelto el punto 1.
 
 
 Basado en: `Backups/scope-funcional-inspiracion.md` (inventario funcional,

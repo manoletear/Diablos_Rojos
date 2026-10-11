@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   actualizarPartido,
-  toggleConvocado,
   guardarLineup,
   setTitular,
   iniciarEnVivo,
@@ -10,6 +9,7 @@ import {
   sumarGol,
   guardarEstadisticaJugador,
 } from "../actions";
+import { ConvocarToggle } from "@/components/convocar-toggle";
 
 export default async function DetallePartidoPage({
   params,
@@ -165,11 +165,7 @@ export default async function DetallePartidoPage({
                   <tr key={a.id}>
                     <td className="px-3 py-2">{a.nombre} {a.apellido}</td>
                     <td className="px-3 py-2">
-                      <form action={toggleConvocado.bind(null, id, a.id, !convocado)}>
-                        <button type="submit" className={`rounded-full px-3 py-1 text-xs font-medium ${convocado ? "bg-success-bg text-success" : "bg-neutral-100 text-neutral-500"}`}>
-                          {convocado ? "✓ Convocado" : "Convocar"}
-                        </button>
-                      </form>
+                      <ConvocarToggle partidoId={id} alumnoId={a.id} convocado={convocado} />
                     </td>
                     <td className="px-3 py-2">
                       {convocado && (
