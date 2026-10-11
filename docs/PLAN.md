@@ -1,5 +1,29 @@
 # Plan de desarrollo — Plataforma Diablos Rojos (multiusuario)
 
+## Flujo de Caja — estado real (actualizado 2026-10-11)
+
+Módulo `/dashboard/flujo-caja` (tabla `documentos_tributarios`, migración
+0038): registra boletas/facturas **emitidas** (cobro a apoderados, se
+concilian manualmente con `pagos`) y **recibidas** (compras/gastos del
+club), con función `flujo_caja_periodo()` que calcula cobrado conciliado,
+cobrado sin boleta, gastos y flujo neto por rango de fechas.
+
+**Carga manual por ahora** (formulario o, a futuro, CSV). **Integración
+automática pendiente — requiere decisiones del club, no técnicas:**
+
+1. **Banco**: se evaluó Fintoc (open banking Chile, el usuario conecta su
+   cuenta en su propio widget, nunca se comparte clave del banco). Falta
+   que el club decida si crea cuenta ahí.
+2. **SII**: nunca se debe automatizar con clave tributaria directa (eso es
+   firmar en nombre del representante legal). La vía segura es un
+   proveedor de facturación electrónica con API propia (Nubox, Defontana,
+   Bsale, OpenFactura, etc.) — falta confirmar si el club ya usa uno.
+
+**Credenciales del banco/SII/representante legal: nunca se piden, tipean
+ni guardan en texto plano acá.** Si se avanza con Fintoc u otro proveedor,
+solo su API key va a `.env.local` / variables de entorno de Netlify — el
+login real siempre ocurre en la plataforma del proveedor, no en este repo.
+
 ## Comunicación — estado real (actualizado 2026-10-10)
 
 Canales activos hoy cuando se convoca a un alumno a un partido
