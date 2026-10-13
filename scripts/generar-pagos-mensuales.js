@@ -7,9 +7,6 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env.local") });
 const PERIODO = process.argv[2] || "octubre de 2026";
 const VENCIMIENTO = process.argv[3] || "2026-11-05";
 
-// precio base por categoria (simplificado; en producción vendría de config)
-const PRECIO_BASE = 98000;
-
 async function main() {
   const c = new Client({
     connectionString: process.env.DATABASE_URL,
@@ -17,9 +14,14 @@ async function main() {
   });
   await c.connect();
 
+  const { rows: configRows } = await c.query(`select mensualidad_default from configuracion_financiera limit 1`);
+  const defaultOrganizacion = configRows[0]?.mensualidad_default ? Number(configRows[0].mensualidad_default) : 98000;
+
   const { rows: alumnos } = await c.query(
-    `select id, sede_id, beca_pct, cuota_personalizada
-     from alumnos where estado = 'matriculado'`
+    `select a.id, a.sede_id, a.beca_pct, a.cuota_personalizada, c.mensualidad_base
+     from alumnos a
+     left join categorias c on c.id = a.categoria_id
+     where a.estado = 'matriculado'`
   );
 
   let creados = 0;
@@ -30,9 +32,13 @@ async function main() {
     );
     if (existentes.length > 0) continue;
 
+    // Prioridad: cuota acordada con la familia > mensualidad de la
+    // categoria > default de la organizacion.
     let monto = a.cuota_personalizada
       ? Number(a.cuota_personalizada)
-      : PRECIO_BASE;
+      : a.mensualidad_base
+        ? Number(a.mensualidad_base)
+        : defaultOrganizacion;
     if (a.beca_pct) monto = monto * (1 - Number(a.beca_pct) / 100);
     monto = Math.round(monto);
 
