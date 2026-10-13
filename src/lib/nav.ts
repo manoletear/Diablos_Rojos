@@ -40,6 +40,12 @@ export const NAV: (NavItem | NavGroup)[] = [
     ],
   },
   {
+    label: "Mi Familia",
+    items: [
+      { label: "Mis Hijos", href: "/dashboard/mis-hijos", roles: ["apoderado"] },
+    ],
+  },
+  {
     label: "Finanzas",
     items: [
       { label: "Pagos", href: "/dashboard/finanzas", roles: ["director", "admin", "apoderado"] },
