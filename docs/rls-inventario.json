@@ -1,0 +1,947 @@
+[
+  {
+    "tablename": "alumno_categorias",
+    "policyname": "staff_all_alumno_categorias",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "alumno_categorias",
+    "policyname": "entrenador_read_alumno_categorias",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "alumno_categorias",
+    "policyname": "apoderado_read_alumno_categorias",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "alumnos",
+    "policyname": "staff_all_alumnos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "alumnos",
+    "policyname": "entrenador_read_alumnos_para_citar",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (estado = 'matriculado'::text))",
+    "with_check": null
+  },
+  {
+    "tablename": "alumnos",
+    "policyname": "entrenador_read_alumnos",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "alumnos",
+    "policyname": "apoderado_read_alumnos",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "alumnos",
+    "policyname": "entrenador_update_alumnos",
+    "cmd": "UPDATE",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "apoderado_alumno",
+    "policyname": "staff_all_apoderado_alumno",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "apoderado_alumno",
+    "policyname": "entrenador_read_apoderado_alumno",
+    "cmd": "SELECT",
+    "qual": "(auth_rol() = 'entrenador'::user_role)",
+    "with_check": null
+  },
+  {
+    "tablename": "apoderado_alumno",
+    "policyname": "apoderado_read_propios_vinculos",
+    "cmd": "SELECT",
+    "qual": "(apoderado_id IN ( SELECT apoderados.id\n   FROM apoderados\n  WHERE (apoderados.profile_id = auth.uid())))",
+    "with_check": null
+  },
+  {
+    "tablename": "apoderados",
+    "policyname": "staff_all_apoderados",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "apoderados",
+    "policyname": "entrenador_read_apoderados",
+    "cmd": "SELECT",
+    "qual": "(auth_rol() = 'entrenador'::user_role)",
+    "with_check": null
+  },
+  {
+    "tablename": "apoderados",
+    "policyname": "apoderado_read_self",
+    "cmd": "SELECT",
+    "qual": "(profile_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "tablename": "catalogo_items_inventario",
+    "policyname": "staff_all_catalogo_items",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "catalogo_items_inventario",
+    "policyname": "read_catalogo_items",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "catalogo_pedido_items",
+    "policyname": "staff_all_catalogo_pedido_items",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "catalogo_pedido_items",
+    "policyname": "apoderado_read_catalogo_pedido_items",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "catalogo_pedidos",
+    "policyname": "staff_all_catalogo_pedidos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "catalogo_productos",
+    "policyname": "staff_all_catalogo_productos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "catalogo_productos",
+    "policyname": "read_catalogo_productos",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "catalogo_variantes",
+    "policyname": "staff_all_catalogo_variantes",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "catalogo_variantes",
+    "policyname": "read_catalogo_variantes",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "categorias",
+    "policyname": "staff_all_categorias",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "categorias",
+    "policyname": "entrenador_read_categorias_todas",
+    "cmd": "SELECT",
+    "qual": "(auth_rol() = 'entrenador'::user_role)",
+    "with_check": null
+  },
+  {
+    "tablename": "categorias",
+    "policyname": "entrenador_read_categorias",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "categorias",
+    "policyname": "apoderado_read_categorias",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND ((id IN ( SELECT al.categoria_id\n   FROM ((alumnos al\n     JOIN apoderado_alumno aa ON ((aa.alumno_id = al.id)))\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))) OR (id IN ( SELECT p.categoria_id\n   FROM partidos p\n  WHERE apoderado_convocado_en_partido(p.id)))))",
+    "with_check": null
+  },
+  {
+    "tablename": "configuracion_financiera",
+    "policyname": "staff_all_config_financiera",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "configuracion_financiera",
+    "policyname": "read_config_financiera",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "consentimientos",
+    "policyname": "staff_all_consentimientos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "consentimientos",
+    "policyname": "apoderado_all_own_consentimientos",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (apoderado_id IN ( SELECT apoderados.id\n   FROM apoderados\n  WHERE (apoderados.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'apoderado'::user_role) AND (apoderado_id IN ( SELECT apoderados.id\n   FROM apoderados\n  WHERE (apoderados.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "consentimientos",
+    "policyname": "profesional_read_consentimientos",
+    "cmd": "SELECT",
+    "qual": "(auth_rol() = 'profesional_salud'::user_role)",
+    "with_check": null
+  },
+  {
+    "tablename": "convocatoria_jugadores",
+    "policyname": "entrenador_all_convocatoria_jugadores",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (convocatoria_id IN ( SELECT co.id\n   FROM (((convocatorias co\n     JOIN partidos p ON ((p.id = co.partido_id)))\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (convocatoria_id IN ( SELECT co.id\n   FROM (((convocatorias co\n     JOIN partidos p ON ((p.id = co.partido_id)))\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "convocatoria_jugadores",
+    "policyname": "staff_all_convocatoria_jugadores",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "convocatoria_jugadores",
+    "policyname": "apoderado_read_convocatoria_jugadores",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "convocatoria_jugadores",
+    "policyname": "apoderado_confirma_su_convocatoria",
+    "cmd": "UPDATE",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))) AND (estado = ANY (ARRAY['confirmada'::estado_convocatoria, 'rechazada'::estado_convocatoria])))"
+  },
+  {
+    "tablename": "convocatorias",
+    "policyname": "entrenador_all_convocatorias",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "convocatorias",
+    "policyname": "staff_all_convocatorias",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "convocatorias",
+    "policyname": "apoderado_read_convocatorias",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND apoderado_puede_ver_convocatoria(id))",
+    "with_check": null
+  },
+  {
+    "tablename": "documentos_tributarios",
+    "policyname": "staff_all_documentos_tributarios",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "entrenador_categorias",
+    "policyname": "staff_all_entrenador_categorias",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "entrenador_categorias",
+    "policyname": "entrenador_read_propias_categorias",
+    "cmd": "SELECT",
+    "qual": "(entrenador_id IN ( SELECT entrenadores.id\n   FROM entrenadores\n  WHERE (entrenadores.profile_id = auth.uid())))",
+    "with_check": null
+  },
+  {
+    "tablename": "entrenadores",
+    "policyname": "staff_all_entrenadores",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "entrenadores",
+    "policyname": "entrenador_read_self",
+    "cmd": "SELECT",
+    "qual": "(profile_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "tablename": "entrenamiento_excepciones",
+    "policyname": "staff_all_entrenamiento_excepciones",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "entrenamiento_excepciones",
+    "policyname": "read_entrenamiento_excepciones",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "eventos_partido",
+    "policyname": "staff_all_eventos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "eventos_partido",
+    "policyname": "entrenador_all_eventos",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "eventos_partido",
+    "policyname": "apoderado_read_eventos",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "fichas_medicas",
+    "policyname": "staff_all_fichas",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "fichas_medicas",
+    "policyname": "apoderado_read_fichas",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "lesiones_adjuntos",
+    "policyname": "clinico_lesiones_adjuntos",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'director'::user_role) OR ((auth_rol() = 'profesional_salud'::user_role) AND (uploaded_by = auth.uid())) OR ((auth_rol() = 'profesional_salud'::user_role) AND (lesion_operativo_id IN ( SELECT lesiones_clinico.lesion_operativo_id\n   FROM lesiones_clinico\n  WHERE (lesiones_clinico.profesional_tratante = auth.uid())))))",
+    "with_check": "((auth_rol() = 'director'::user_role) OR ((auth_rol() = 'profesional_salud'::user_role) AND (uploaded_by = auth.uid())))"
+  },
+  {
+    "tablename": "lesiones_catalogo",
+    "policyname": "staff_write_lesiones_catalogo",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "lesiones_catalogo",
+    "policyname": "read_lesiones_catalogo",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "lesiones_clinico",
+    "policyname": "clinico_lesiones",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'director'::user_role) OR ((auth_rol() = 'profesional_salud'::user_role) AND (profesional_tratante = auth.uid())))",
+    "with_check": "((auth_rol() = 'director'::user_role) OR ((auth_rol() = 'profesional_salud'::user_role) AND (profesional_tratante = auth.uid())))"
+  },
+  {
+    "tablename": "lesiones_operativo",
+    "policyname": "profesional_all_lesiones_operativo",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = 'profesional_salud'::user_role)",
+    "with_check": "(auth_rol() = 'profesional_salud'::user_role)"
+  },
+  {
+    "tablename": "lesiones_operativo",
+    "policyname": "staff_all_lesiones_operativo",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "lesiones_operativo",
+    "policyname": "apoderado_read_lesiones_operativo",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "lesiones_operativo",
+    "policyname": "entrenador_read_lesiones_operativo",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (alumno_id IN ( SELECT al.id\n   FROM ((alumnos al\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = al.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "lesiones_sesiones_tratamiento",
+    "policyname": "clinico_sesiones_tratamiento",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'director'::user_role) OR ((auth_rol() = 'profesional_salud'::user_role) AND (recorded_by = auth.uid())) OR ((auth_rol() = 'profesional_salud'::user_role) AND (lesion_operativo_id IN ( SELECT lesiones_clinico.lesion_operativo_id\n   FROM lesiones_clinico\n  WHERE (lesiones_clinico.profesional_tratante = auth.uid())))))",
+    "with_check": "((auth_rol() = 'director'::user_role) OR ((auth_rol() = 'profesional_salud'::user_role) AND (recorded_by = auth.uid())))"
+  },
+  {
+    "tablename": "lineups",
+    "policyname": "staff_all_lineups",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "lineups",
+    "policyname": "entrenador_all_lineups",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "matriculas_categoria",
+    "policyname": "staff_all_matriculas_categoria",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "matriculas_categoria",
+    "policyname": "apoderado_read_matriculas_categoria",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "matriculas_sede",
+    "policyname": "staff_all_matriculas_sede",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "matriculas_sede",
+    "policyname": "apoderado_read_matriculas_sede",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "mediciones_antropometricas",
+    "policyname": "staff_all_mediciones",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "mediciones_antropometricas",
+    "policyname": "profesional_all_mediciones",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = 'profesional_salud'::user_role)",
+    "with_check": "(auth_rol() = 'profesional_salud'::user_role)"
+  },
+  {
+    "tablename": "mediciones_antropometricas",
+    "policyname": "entrenador_all_mediciones",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (alumno_id IN ( SELECT al.id\n   FROM ((alumnos al\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = al.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (alumno_id IN ( SELECT al.id\n   FROM ((alumnos al\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = al.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "mediciones_antropometricas",
+    "policyname": "apoderado_read_mediciones",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "mensaje_envios",
+    "policyname": "staff_all_mensaje_envios",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "mensaje_envios",
+    "policyname": "apoderado_read_mensaje_envios",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (apoderado_id IN ( SELECT apoderados.id\n   FROM apoderados\n  WHERE (apoderados.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "mensajes",
+    "policyname": "staff_all_mensajes",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "minutaje_categoria_resumen",
+    "policyname": "staff_all_minutaje_cat_resumen",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "minutaje_resumen",
+    "policyname": "staff_all_minutaje_resumen",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "minutaje_resumen",
+    "policyname": "apoderado_read_minutaje_resumen",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "minutaje_resumen",
+    "policyname": "entrenador_read_minutaje_resumen",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "minutajes_partido",
+    "policyname": "entrenador_all_minutajes_partido",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "minutajes_partido",
+    "policyname": "staff_all_minutajes_partido",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "minutajes_partido",
+    "policyname": "apoderado_read_minutajes_partido",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "oms_tablas_referencia",
+    "policyname": "staff_write_oms_tablas",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "oms_tablas_referencia",
+    "policyname": "read_oms_tablas",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "pagos",
+    "policyname": "staff_all_pagos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "pagos",
+    "policyname": "apoderado_read_pagos",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "pagos_transacciones",
+    "policyname": "staff_all_pagos_transacciones",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "pagos_transacciones",
+    "policyname": "apoderado_read_pagos_transacciones",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (pago_id IN ( SELECT p.id\n   FROM ((pagos p\n     JOIN apoderado_alumno aa ON ((aa.alumno_id = p.alumno_id)))\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "partido_estado_vivo",
+    "policyname": "staff_all_partido_vivo",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "partido_estado_vivo",
+    "policyname": "entrenador_all_partido_vivo",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (partido_id IN ( SELECT p.id\n   FROM ((partidos p\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = p.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "partido_estado_vivo",
+    "policyname": "apoderado_read_partido_vivo",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND ((partido_id IN ( SELECT p.id\n   FROM (((partidos p\n     JOIN alumnos al ON ((al.categoria_id = p.categoria_id)))\n     JOIN apoderado_alumno aa ON ((aa.alumno_id = al.id)))\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))) OR apoderado_convocado_en_partido(partido_id)))",
+    "with_check": null
+  },
+  {
+    "tablename": "partidos",
+    "policyname": "staff_all_partidos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "partidos",
+    "policyname": "entrenador_all_partidos",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "partidos",
+    "policyname": "apoderado_read_partidos",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND ((categoria_id IN ( SELECT al.categoria_id\n   FROM ((alumnos al\n     JOIN apoderado_alumno aa ON ((aa.alumno_id = al.id)))\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))) OR apoderado_convocado_en_partido(id)))",
+    "with_check": null
+  },
+  {
+    "tablename": "plantillas_mensaje",
+    "policyname": "staff_all_plantillas",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "profiles",
+    "policyname": "profiles_self",
+    "cmd": "SELECT",
+    "qual": "(id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "tablename": "profiles",
+    "policyname": "profiles_admin_all",
+    "cmd": "SELECT",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": null
+  },
+  {
+    "tablename": "profiles",
+    "policyname": "profiles_self_update",
+    "cmd": "UPDATE",
+    "qual": "(id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "tablename": "psicologia_adjuntos",
+    "policyname": "director_all_psicologia_adjuntos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = 'director'::user_role)",
+    "with_check": "(auth_rol() = 'director'::user_role)"
+  },
+  {
+    "tablename": "psicologia_adjuntos",
+    "policyname": "profesional_own_psicologia_adjuntos",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'profesional_salud'::user_role) AND (uploaded_by = auth.uid()))",
+    "with_check": "((auth_rol() = 'profesional_salud'::user_role) AND (uploaded_by = auth.uid()))"
+  },
+  {
+    "tablename": "psicologia_casos",
+    "policyname": "director_all_psicologia_casos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = 'director'::user_role)",
+    "with_check": "(auth_rol() = 'director'::user_role)"
+  },
+  {
+    "tablename": "psicologia_casos",
+    "policyname": "profesional_all_psicologia_casos",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'profesional_salud'::user_role) AND ((created_by = auth.uid()) OR (id IN ( SELECT psicologia_sesiones.caso_id\n   FROM psicologia_sesiones\n  WHERE (psicologia_sesiones.recorded_by = auth.uid())))))",
+    "with_check": "(auth_rol() = 'profesional_salud'::user_role)"
+  },
+  {
+    "tablename": "psicologia_casos",
+    "policyname": "apoderado_read_psicologia_casos",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "psicologia_catalogo",
+    "policyname": "staff_write_psicologia_catalogo",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "psicologia_catalogo",
+    "policyname": "read_psicologia_catalogo",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "psicologia_objetivos",
+    "policyname": "director_all_psicologia_objetivos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = 'director'::user_role)",
+    "with_check": "(auth_rol() = 'director'::user_role)"
+  },
+  {
+    "tablename": "psicologia_objetivos",
+    "policyname": "profesional_all_psicologia_objetivos",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'profesional_salud'::user_role) AND (caso_id IN ( SELECT psicologia_casos.id\n   FROM psicologia_casos\n  WHERE (psicologia_casos.created_by = auth.uid()))))",
+    "with_check": "(auth_rol() = 'profesional_salud'::user_role)"
+  },
+  {
+    "tablename": "psicologia_sesiones",
+    "policyname": "profesional_own_psicologia_sesiones",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'profesional_salud'::user_role) AND (recorded_by = auth.uid()))",
+    "with_check": "((auth_rol() = 'profesional_salud'::user_role) AND (recorded_by = auth.uid()))"
+  },
+  {
+    "tablename": "psicologia_sesiones",
+    "policyname": "director_all_psicologia_sesiones",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = 'director'::user_role)",
+    "with_check": "(auth_rol() = 'director'::user_role)"
+  },
+  {
+    "tablename": "push_subscriptions",
+    "policyname": "own_push_subscriptions",
+    "cmd": "ALL",
+    "qual": "(profile_id = auth.uid())",
+    "with_check": "(profile_id = auth.uid())"
+  },
+  {
+    "tablename": "push_subscriptions",
+    "policyname": "staff_read_push_subscriptions",
+    "cmd": "SELECT",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": null
+  },
+  {
+    "tablename": "recintos",
+    "policyname": "staff_all_recintos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "recintos",
+    "policyname": "read_recintos",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "registros_asistencia",
+    "policyname": "staff_all_registros",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "registros_asistencia",
+    "policyname": "entrenador_all_registros",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (sesion_id IN ( SELECT s.id\n   FROM ((sesiones_entrenamiento s\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = s.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (sesion_id IN ( SELECT s.id\n   FROM ((sesiones_entrenamiento s\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = s.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "registros_asistencia",
+    "policyname": "apoderado_read_registros",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "restricciones_salud",
+    "policyname": "profesional_all_restricciones_salud",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = 'profesional_salud'::user_role)",
+    "with_check": "(auth_rol() = 'profesional_salud'::user_role)"
+  },
+  {
+    "tablename": "restricciones_salud",
+    "policyname": "staff_all_restricciones_salud",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "restricciones_salud",
+    "policyname": "apoderado_read_restricciones_salud",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "restricciones_salud",
+    "policyname": "entrenador_read_restricciones_salud",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (alumno_id IN ( SELECT al.id\n   FROM ((alumnos al\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = al.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "salud_audit_log",
+    "policyname": "director_read_salud_audit",
+    "cmd": "SELECT",
+    "qual": "(auth_rol() = 'director'::user_role)",
+    "with_check": null
+  },
+  {
+    "tablename": "sedes",
+    "policyname": "staff_all_sedes",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "sedes",
+    "policyname": "authenticated_read_sedes",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "sesiones_entrenamiento",
+    "policyname": "staff_all_sesiones",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "sesiones_entrenamiento",
+    "policyname": "entrenador_all_sesiones",
+    "cmd": "ALL",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": "((auth_rol() = 'entrenador'::user_role) AND (categoria_id IN ( SELECT ec.categoria_id\n   FROM (entrenador_categorias ec\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))"
+  },
+  {
+    "tablename": "temporadas",
+    "policyname": "staff_all_temporadas",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "temporadas",
+    "policyname": "authenticated_read_temporadas",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "torneo_categorias",
+    "policyname": "staff_all_torneo_categorias",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "torneo_categorias",
+    "policyname": "read_torneo_categorias",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "torneo_inscripciones",
+    "policyname": "staff_all_torneo_inscripciones",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "torneo_inscripciones",
+    "policyname": "apoderado_read_torneo_inscripciones",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "torneo_inscripciones",
+    "policyname": "entrenador_read_torneo_inscripciones",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'entrenador'::user_role) AND (torneo_id IN ( SELECT tc.torneo_id\n   FROM ((torneo_categorias tc\n     JOIN entrenador_categorias ec ON ((ec.categoria_id = tc.categoria_id)))\n     JOIN entrenadores e ON ((e.id = ec.entrenador_id)))\n  WHERE (e.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "torneos",
+    "policyname": "staff_all_torneos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "torneos",
+    "policyname": "read_torneos",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  },
+  {
+    "tablename": "uniforme_pedidos",
+    "policyname": "staff_all_uniforme_pedidos",
+    "cmd": "ALL",
+    "qual": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))",
+    "with_check": "(auth_rol() = ANY (ARRAY['director'::user_role, 'admin'::user_role]))"
+  },
+  {
+    "tablename": "uniforme_pedidos",
+    "policyname": "apoderado_read_uniforme_pedidos",
+    "cmd": "SELECT",
+    "qual": "((auth_rol() = 'apoderado'::user_role) AND (alumno_id IN ( SELECT aa.alumno_id\n   FROM (apoderado_alumno aa\n     JOIN apoderados a ON ((a.id = aa.apoderado_id)))\n  WHERE (a.profile_id = auth.uid()))))",
+    "with_check": null
+  },
+  {
+    "tablename": "variables_mensaje_catalogo",
+    "policyname": "read_variables_catalogo",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() IS NOT NULL)",
+    "with_check": null
+  }
+]

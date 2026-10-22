@@ -30,8 +30,31 @@
     adaptor todavía — eso es trabajo real pendiente (reemplazar cada
     `createClient()` de Supabase por `DbAdapter`), fuera del scope de esta
     prueba de concepto. Se hace en sub-pasos cuando se retome.
-- **Fase 5 (RLS→código), 6 (Auth) y 7 (hosting)**: no iniciadas. Requieren
-  tu aprobación explícita antes de empezar cada una.
+- **Fase 5 (RLS→código)**: 🟡 iniciada (2026-10-22), lejos de completa.
+  - `src/lib/auth-guard.ts` — helpers base: `requireRole`, `requireStaff`,
+    `requireSelf`, `requireApoderadoDeAlumno`, `requireEntrenadorEditaAlumno`,
+    `esEntrenadorDeCategoria`, `requireApoderadoConvocadoEnPartido`, `withAuth`.
+    Escriben SQL portable con `?` (estilo D1); `postgres-adapter.ts` ahora
+    traduce `?` → `$1,$2,...` para que el mismo código sirva en ambos backends.
+  - `docs/rls-inventario.json` — dump completo de las **135** policies reales
+    de hoy (el plan original decía 117; crecieron con el trabajo de
+    invitaciones/magic link de esta semana) — es el worksheet real para
+    portar el resto, tabla por tabla.
+  - 3 de 135 policies verificadas con casos reales positivo/negativo contra
+    la base real (apoderado↔hijo propio/ajeno, entrenador↔categoría propia) —
+    coinciden exacto con el comportamiento RLS actual.
+  - `requireProfesionalSaludDeCaso` queda explícitamente **sin implementar**:
+    las tablas de salud/psicología no tienen datos reales todavía (Fase 3),
+    adivinar ese modelo de autorización sin confirmarlo es el tipo de riesgo
+    que este documento ya advertía evitar.
+  - Sin framework de test automatizado todavía (el repo no tiene
+    vitest/jest configurado) — se verificó a mano por ahora, decisión de
+    herramienta pendiente de confirmar con Manuel antes de asumir una.
+  - **Falta**: las ~132 policies restantes, y migrar los ~30 módulos de la
+    app para que llamen estos guards en vez de depender de RLS.
+- **Fase 6 (Auth) y 7 (hosting)**: no iniciadas. Requieren tu aprobación
+  explícita antes de empezar cada una. Fase 6 ya tiene diseño propio (ver
+  sección 4 más abajo), pendiente de construirse.
 
 ---
 
@@ -96,16 +119,71 @@ todas las queries sensibles deben pasar obligatoriamente — nunca `db.query`
 directo en código de negocio — más tests automatizados de autorización por
 tabla antes del corte.
 
-## 4. Auth
+## 4. Auth (replanificado 2026-10-22 — el original quedó obsoleto)
 
-Con 1 solo usuario Auth real hoy, se simplifica mucho:
+El plan original asumía "1 solo usuario Auth real" y proponía Cloudflare
+Access (SSO de staff) para todos. Eso ya no aplica: entre el 13 y el 21 de
+octubre se construyó sobre Supabase Auth un sistema completo —
 
-- **Staff (director/admin/entrenador)**: Cloudflare Access (Zero Trust) —
-  allowlist de emails, login con Google/magic link, cero contraseñas que
-  administrar, gratis hasta 50 usuarios.
-- **Apoderados** (futuro Portal, hoy no implementado): sesiones propias en
-  D1 + magic link vía Cloudflare Email Routing, cuando se retome Fase 6 del
-  plan original (`docs/PLAN.md`).
+- Invitaciones admin→entrenador/apoderado (`admin.inviteUserByEmail`)
+- Apoderados **sin contraseña nunca**, piden magic link de 30 min
+  (`signInWithOtp`, `shouldCreateUser:false`)
+- Staff con contraseña normal (`signInWithPassword`)
+- Trigger de auto-link por email (`handle_new_user()`)
+- ~12 RLS policies nuevas sobre este flujo
+
+Cloudflare Access está pensado para SSO de empleados vía allowlist, no para
+cientos de apoderados externos con passwordless self-service — llevar este
+sistema ahí significa **reconstruir un Auth propio**, no cambiar de
+proveedor. Diseño propuesto:
+
+### Tablas nuevas en D1
+
+| Tabla | Columnas clave | Reemplaza |
+|---|---|---|
+| `auth_users` | `id, email, rol, password_hash (nullable), created_at` | `auth.users` + `profiles` fusionados (hoy están separados en Supabase) |
+| `auth_invites` | `token_hash, email, rol, tabla_destino, expires_at, used_at` | `admin.inviteUserByEmail` |
+| `auth_magic_links` | `token_hash, email, expires_at (+30min), used_at` | `signInWithOtp` |
+| `auth_sessions` | `id, user_id, expires_at, created_at` | cookie de sesión de Supabase SSR |
+
+Sesión **con estado** (tabla, no JWT stateless): permite "cerrar todas mis
+sesiones" y revocar al tiro, y un `SELECT` a D1 es barato — no hay razón
+real para la complejidad extra de JWT+refresh aquí.
+
+### Hashing de contraseña
+
+`bcrypt`/`argon2` nativos no corren en el runtime de Workers (dependen de
+código nativo). Usar **PBKDF2 vía Web Crypto** (`crypto.subtle`, disponible
+nativo en Workers) — patrón estándar documentado por Cloudflare para esto.
+
+### Envío de correo (invites + magic link)
+
+Resend (ya hay placeholder `RESEND_API_KEY` en `.env.local`, pendiente de
+cuenta real) — se llama vía `fetch()` normal desde el Worker, no necesita
+SDK de Node.
+
+### Rutas (reemplazan a los Route Handlers de Next.js actuales)
+
+| Hoy (Next.js + Supabase) | Cloudflare |
+|---|---|
+| `login/actions.ts` → `signInWithPassword` | `POST /auth/login` — verifica `password_hash` con PBKDF2, crea fila en `auth_sessions`, set-cookie |
+| `login/actions.ts` → `pedirMagicLink` | `POST /auth/magic-link` — genera token random, guarda hash en `auth_magic_links`, envía correo por Resend |
+| `auth/confirm/route.ts` | `GET /auth/confirm?token=...` — valida hash+expiry+`used_at is null`, marca usado, crea sesión |
+| `dashboard/usuarios/actions.ts` → `invitarEntrenador/Apoderado` | `POST /admin/invitar` — mismo patrón que magic link pero con `rol`/`tabla_destino` |
+| `auth/set-password/actions.ts` | `POST /auth/set-password` — solo si hay sesión activa de un invite recién aceptado |
+| middleware de Supabase SSR (`src/lib/supabase/middleware.ts`) | Worker middleware: lee cookie de sesión, valida contra `auth_sessions`, inyecta `rol` en el contexto — mismo rol que hoy cumplen las RLS policies, ahora explícito en código (ver Fase 5, `auth-guard.ts`) |
+
+### Riesgos nuevos que no existían en el plan original
+
+- **Rate limiting**: Supabase ya limita intentos de magic link/invite por
+  IP/email. Si se reconstruye a mano, hay que agregar esto explícito (regla
+  de Cloudflare o contador en D1) — si se omite, es una superficie de abuso
+  nueva (alguien podría pedir magic links en loop).
+- **Expiración de 30 min pedida por Manuel**: hoy es config del Dashboard de
+  Supabase (OTP Expiry); en Cloudflare hay que calcularla a mano en cada
+  `INSERT` a `auth_magic_links` y validarla en el `GET /auth/confirm`.
+- Esta fase ahora depende de que Fase 5 (`auth-guard.ts`, `requireRole` etc.)
+  esté lista primero — las rutas de arriba llaman a esos mismos helpers.
 
 ## 5. Storage (Supabase Storage → R2)
 
