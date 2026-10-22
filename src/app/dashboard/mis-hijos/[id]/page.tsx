@@ -57,9 +57,7 @@ export default async function PerfilHijoPage({ params }: { params: Promise<{ id:
     supabase
       .from("convocatoria_jugadores")
       .select("estado, convocatorias(partidos(rival, fecha_hora))")
-      .eq("alumno_id", id)
-      .order("convocatoria_id", { ascending: false })
-      .limit(10),
+      .eq("alumno_id", id),
     supabase.from("matriculas_categoria").select("estado, created_at, categorias(nombre)").eq("alumno_id", id),
     supabase.from("matriculas_sede").select("estado, fecha_inicio, fecha_fin, sedes(nombre)").eq("alumno_id", id),
   ]);
@@ -67,6 +65,16 @@ export default async function PerfilHijoPage({ params }: { params: Promise<{ id:
   const presentes = (asistencias ?? []).filter((r) => r.estado === "presente" || r.estado === "tardanza").length;
   const pctAsistencia = (asistencias ?? []).length > 0 ? Math.round((presentes / (asistencias ?? []).length) * 100) : null;
   const pendientePorPagar = (pagos ?? []).reduce((acc, p) => (p.estado !== "pagado" ? acc + (Number(p.monto_total) - Number(p.monto_pagado)) : acc), 0);
+
+  // convocatoria_id es un uuid random — ordenar por el id no sirve para
+  // "más reciente". Ordenamos acá por fecha real del partido.
+  const convocatoriasOrdenadas = [...(convocatorias ?? [])]
+    .sort((a, b) => {
+      const fa = (a.convocatorias as unknown as { partidos: { fecha_hora: string } | null } | null)?.partidos?.fecha_hora ?? "";
+      const fb = (b.convocatorias as unknown as { partidos: { fecha_hora: string } | null } | null)?.partidos?.fecha_hora ?? "";
+      return fb.localeCompare(fa);
+    })
+    .slice(0, 10);
 
   return (
     <div className="p-6">
@@ -181,8 +189,8 @@ export default async function PerfilHijoPage({ params }: { params: Promise<{ id:
           <div className="rounded-xl border border-neutral-200 bg-white p-5">
             <div className="font-semibold text-neutral-900">Convocatorias a Partidos</div>
             <div className="mt-3 space-y-1.5 text-sm">
-              {convocatorias && convocatorias.length > 0 ? (
-                convocatorias.map((c, i) => {
+              {convocatoriasOrdenadas.length > 0 ? (
+                convocatoriasOrdenadas.map((c, i) => {
                   const partido = (c.convocatorias as unknown as { partidos: { rival: string; fecha_hora: string } | null } | null)?.partidos;
                   if (!partido) return null;
                   return (

@@ -34,6 +34,7 @@ export const NAV: (NavItem | NavGroup)[] = [
     label: "Gestión",
     items: [
       { label: "Asistencias", href: "/dashboard/asistencias", roles: ["director", "admin", "entrenador"] },
+      { label: "Usuarios", href: "/dashboard/usuarios", roles: ["director", "admin"] },
       // Reporte Asistencias y Dashboard Ejecutivo: sin pagina construida
       // todavia (/dashboard/asistencias/reporte y /dashboard/ejecutivo
       // 404). Mismo criterio que Salud/Comunicacion abajo.

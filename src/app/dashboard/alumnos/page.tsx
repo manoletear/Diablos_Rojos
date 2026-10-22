@@ -229,7 +229,9 @@ export default async function AlumnosPage({
                       </td>
                       <td className="px-3 py-3 font-medium text-neutral-900">
                         <div className="flex items-center gap-1.5">
-                          {a.nombre} {a.apellido}
+                          <Link href={`/dashboard/alumnos/${a.id}`} className="hover:underline">
+                            {a.nombre} {a.apellido}
+                          </Link>
                           {telefono && (
                             <a
                               href={`https://wa.me/${telefono.replace(/\D/g, "")}`}
