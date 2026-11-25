@@ -14,6 +14,17 @@ export default async function DetallePagoPage({
   const { id } = await params;
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: perfil } = await supabase.from("profiles").select("rol").eq("id", user?.id ?? "").maybeSingle();
+  // pagos_transacciones solo tiene policy de escritura para staff_all_* —
+  // apoderado solo tiene SELECT (apoderado_read_pagos_transacciones). El
+  // formulario se mostraba igual para todos y fallaba en silencio si un
+  // apoderado lo usaba (RLS rechaza el insert sin dar error visible al
+  // dueño del formulario).
+  const puedeRegistrarAbono = perfil?.rol === "director" || perfil?.rol === "admin";
+
   const [{ data: pago }, { data: abonos }] = await Promise.all([
     supabase.from("pagos").select("*, alumnos(nombre, apellido)").eq("id", id).single(),
     supabase.from("pagos_transacciones").select("*").eq("pago_id", id).order("created_at", { ascending: false }),
@@ -59,7 +70,7 @@ export default async function DetallePagoPage({
           )}
         </div>
 
-        {saldo > 0 && (
+        {saldo > 0 && puedeRegistrarAbono && (
           <form action={registrarConId} className="mt-4 flex items-end gap-2 border-t border-neutral-200 pt-4">
             <div className="flex-1">
               <label className="block text-xs font-medium text-neutral-600">Monto del abono</label>
@@ -75,6 +86,11 @@ export default async function DetallePagoPage({
               Registrar Abono
             </button>
           </form>
+        )}
+        {saldo > 0 && !puedeRegistrarAbono && (
+          <p className="mt-4 border-t border-neutral-200 pt-4 text-xs text-neutral-400">
+            El registro de abonos lo hace el club — todavía no hay un flujo de pago online propio para apoderados.
+          </p>
         )}
       </div>
     </div>
