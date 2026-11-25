@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, provisionarUsuario } from "@/lib/supabase/admin";
 import { getOrigin } from "@/lib/origin";
 
 async function exigirDirectorOAdmin() {
@@ -84,4 +84,41 @@ export async function reenviarInvitacion(tabla: "entrenadores" | "apoderados", e
   const { error } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+function generarClaveAleatoria() {
+  // 12 caracteres, alfanumérico + símbolo — suficiente para una clave que
+  // el admin lee una vez y relaya a mano, no para memorizar.
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  let clave = "";
+  for (let i = 0; i < 12; i++) clave += alfabeto[Math.floor(Math.random() * alfabeto.length)];
+  return clave + "!";
+}
+
+type ClaveEmergenciaResultado = { ok: boolean; password?: string; error?: string };
+
+/**
+ * Fallback cuando el correo (invite o magic link) no llega — pasó con
+ * María José: invite nunca se abrió, mailer por defecto de Supabase no es
+ * confiable sin SMTP propio (ver docs, RESEND_API_KEY pendiente). Genera
+ * una clave real, la setea vía provisionarUsuario (que SIEMPRE confirma el
+ * email — esa fue la causa real del bug), y la devuelve una sola vez para
+ * que el admin la pase a mano. No queda guardada en ningún lado.
+ */
+export async function generarClaveEmergencia(tabla: "entrenadores" | "apoderados", filaId: string): Promise<ClaveEmergenciaResultado> {
+  const supabase = await exigirDirectorOAdmin();
+  const { data: fila } = await supabase.from(tabla).select("email, nombre, profile_id").eq("id", filaId).maybeSingle();
+  if (!fila?.email) return { ok: false, error: "No se encontró esa fila." };
+
+  const rol = tabla === "entrenadores" ? "entrenador" : "apoderado";
+  const password = generarClaveAleatoria();
+
+  try {
+    await provisionarUsuario({ email: fila.email, nombre: fila.nombre, rol, profileId: fila.profile_id, password });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error desconocido" };
+  }
+
+  revalidatePath("/dashboard/usuarios");
+  return { ok: true, password };
 }

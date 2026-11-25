@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { invitarEntrenador, invitarApoderado } from "./actions";
 import ReenviarBoton from "./reenviar-boton";
+import ClaveEmergenciaBoton from "./clave-emergencia-boton";
 
 export default async function UsuariosPage({
   searchParams,
@@ -29,10 +30,15 @@ export default async function UsuariosPage({
   // no sirve para saber si ya entró. Lo real es last_sign_in_at en auth.users,
   // que solo el cliente con service_role puede leer.
   let yaIngreso = new Set<string>();
+  let sinConfirmar = new Set<string>();
   try {
     const admin = createAdminClient();
     const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
     yaIngreso = new Set((data?.users ?? []).filter((u) => u.last_sign_in_at).map((u) => u.id));
+    // El bug real con María José: cuenta creada por invite, nunca abierta,
+    // email_confirmed_at quedó null — signInWithPassword la rechaza aunque
+    // tenga clave. "Clave de emergencia" solo tiene sentido mostrarla acá.
+    sinConfirmar = new Set((data?.users ?? []).filter((u) => !u.email_confirmed_at).map((u) => u.id));
   } catch {
     // Sin SUPABASE_SERVICE_ROLE_KEY configurada todavia: no reventar la
     // pagina por esto, solo mostrar todos como "Invitado" hasta configurarla.
@@ -84,6 +90,9 @@ export default async function UsuariosPage({
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-warning-bg px-2 py-0.5 text-xs font-medium text-warning">Invitado</span>
                     <ReenviarBoton tabla="entrenadores" email={e.email} />
+                    {(!e.profile_id || sinConfirmar.has(e.profile_id)) && (
+                      <ClaveEmergenciaBoton tabla="entrenadores" filaId={e.id} />
+                    )}
                   </div>
                 ) : (
                   <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500">Sin email</span>
@@ -118,6 +127,9 @@ export default async function UsuariosPage({
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-warning-bg px-2 py-0.5 text-xs font-medium text-warning">Invitado</span>
                     <ReenviarBoton tabla="apoderados" email={a.email} />
+                    {(!a.profile_id || sinConfirmar.has(a.profile_id)) && (
+                      <ClaveEmergenciaBoton tabla="apoderados" filaId={a.id} />
+                    )}
                   </div>
                 ) : (
                   <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500">Sin email</span>
