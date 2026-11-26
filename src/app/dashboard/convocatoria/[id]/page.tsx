@@ -19,6 +19,14 @@ function inicialApellido(apellido: string) {
   return apellido ? `${apellido[0]}.` : "";
 }
 
+type PlantelRow = {
+  alumno_id: string;
+  estado: "pendiente" | "confirmada" | "rechazada";
+  nombre: string;
+  apellido: string;
+  numero_camiseta: number | null;
+};
+
 export default async function ConvocatoriaEquipoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -44,10 +52,11 @@ export default async function ConvocatoriaEquipoPage({ params }: { params: Promi
   // de autorización que usa "convocatorias" causaba 42P17 (infinite
   // recursion) incluso en lecturas que no tocaban alumnos para nada — la
   // función hace su propio chequeo de autorización y bypassa RLS adentro.
-  const [{ data: plantel }, { data: apoderado }] = await Promise.all([
+  const [{ data: plantelData }, { data: apoderado }] = await Promise.all([
     supabase.rpc("obtener_plantel_convocatoria", { p_convocatoria_id: id }),
     supabase.from("apoderados").select("id").eq("profile_id", user?.id ?? "").maybeSingle(),
   ]);
+  const plantel = (plantelData ?? []) as PlantelRow[];
 
   const { data: misHijosAca } = apoderado
     ? await supabase.from("apoderado_alumno").select("alumno_id").eq("apoderado_id", apoderado.id)
