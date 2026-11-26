@@ -182,20 +182,47 @@ export async function guardarEstadisticaJugador(partidoId: string, alumnoId: str
   revalidatePath(`/dashboard/partidos/${partidoId}`);
 }
 
-export async function confirmarConvocatoria(convocatoriaId: string, alumnoId: string, confirma: boolean) {
+type ConfirmarResultado = { ok: boolean; error?: string };
+
+export async function confirmarConvocatoria(
+  convocatoriaId: string,
+  alumnoId: string,
+  confirma: boolean,
+  motivo?: string
+): Promise<ConfirmarResultado> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("convocatoria_jugadores")
     .update({
       estado: confirma ? "confirmada" : "rechazada",
       confirmado_por: user?.id ?? null,
       confirmado_en: new Date().toISOString(),
+      motivo_rechazo: confirma ? null : motivo?.trim() || null,
     })
     .eq("convocatoria_id", convocatoriaId)
-    .eq("alumno_id", alumnoId);
-  if (error) throw new Error(error.message);
+    .eq("alumno_id", alumnoId)
+    .select("alumno_id");
+
+  if (error) {
+    // El deadline vive en el WITH CHECK de la policy -- a diferencia de un
+    // USING que no matchea (0 filas, sin error), un WITH CHECK que falla
+    // SÍ levanta un error real de Postgres (42501) con texto técnico.
+    const mensaje =
+      error.code === "42501"
+        ? "Ya no se puede responder: el partido ya pasó o la citación se cerró."
+        : error.message;
+    return { ok: false, error: mensaje };
+  }
+  // RLS bloquea en silencio (0 filas, sin error) cuando ya pasó la hora del
+  // partido — el filtro de deadline vive en la policy, no acá.
+  if (!data || data.length === 0) {
+    return { ok: false, error: "Ya no se puede responder: el partido ya pasó o la citación se cerró." };
+  }
+
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/mis-hijos");
+  return { ok: true };
 }

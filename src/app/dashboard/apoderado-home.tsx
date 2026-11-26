@@ -86,6 +86,9 @@ export async function ApoderadoHome({ userId }: { userId: string }) {
                     <div className="text-xs text-neutral-500">
                       {fecha.toLocaleDateString("es-CL")} {fecha.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
                     </div>
+                    <Link href={`/dashboard/convocatoria/${c.convocatoria_id}`} className="text-xs text-primary-600 hover:underline">
+                      Ver convocatoria del equipo
+                    </Link>
                   </div>
                   <ConfirmarConvocatoria convocatoriaId={c.convocatoria_id} alumnoId={c.alumno_id} />
                 </div>

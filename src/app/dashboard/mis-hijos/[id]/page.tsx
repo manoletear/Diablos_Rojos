@@ -56,7 +56,7 @@ export default async function PerfilHijoPage({ params }: { params: Promise<{ id:
     supabase.from("pagos").select("id, tipo, periodo, monto_total, monto_pagado, estado, fecha_vencimiento").eq("alumno_id", id).order("fecha_vencimiento", { ascending: false }),
     supabase
       .from("convocatoria_jugadores")
-      .select("estado, convocatorias(partidos(rival, fecha_hora))")
+      .select("convocatoria_id, estado, convocatorias(partidos(rival, fecha_hora))")
       .eq("alumno_id", id),
     supabase.from("matriculas_categoria").select("estado, created_at, categorias(nombre)").eq("alumno_id", id),
     supabase.from("matriculas_sede").select("estado, fecha_inicio, fecha_fin, sedes(nombre)").eq("alumno_id", id),
@@ -195,7 +195,9 @@ export default async function PerfilHijoPage({ params }: { params: Promise<{ id:
                   if (!partido) return null;
                   return (
                     <div key={i} className="flex justify-between">
-                      <span className="text-neutral-600">vs {partido.rival} · {new Date(partido.fecha_hora).toLocaleDateString("es-CL")}</span>
+                      <Link href={`/dashboard/convocatoria/${c.convocatoria_id}`} className="text-neutral-600 hover:underline">
+                        vs {partido.rival} · {new Date(partido.fecha_hora).toLocaleDateString("es-CL")}
+                      </Link>
                       <span className="capitalize text-neutral-500">{c.estado}</span>
                     </div>
                   );
